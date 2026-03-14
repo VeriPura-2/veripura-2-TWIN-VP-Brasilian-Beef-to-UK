@@ -7,7 +7,390 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-<script src="data.js"></script>
+<script>
+// ============================================================
+// VeriPura × TWIN — Brazilian Beef to UK
+// CONTENT CONFIGURATION — edit this block to update all content
+// ============================================================
+
+const CONFIG = {
+
+  meta: {
+    title: "Brazilian Beef → UK",
+    subtitle: "How VeriPura × TWIN transforms food import compliance",
+    audience: "UK Government Officials — APHA, DEFRA, HMRC, Border Force",
+    version: "v0.3 — March 2026"
+  },
+
+  phases: [
+    { id: "origin",       label: "Origin & Processing",   color: "#1a6b4a" },
+    { id: "predeparture", label: "Pre-Departure",         color: "#0f5a8a" },
+    { id: "transit",      label: "Transit & Crossing",    color: "#6b3fa0" },
+    { id: "entry",        label: "UK Entry & Clearance",  color: "#b84c00" }
+  ],
+
+  stages: [
+    {
+      id: "s1", phase: "origin", number: 1,
+      label: "Pre-Order Assessment",
+      sublabel: "Establishment & product eligibility checks",
+      actors: ["consignee", "consignor"],
+      docs: [
+        { name: "Purchase Order", source: "Consignee / Buyer", required: true },
+        { name: "DEFRA Approved Establishment Register", source: "DEFRA live database", required: true },
+        { name: "SIF Number Verification", source: "APHA / DEFRA", required: true },
+        { name: "RASFF Suspension Check", source: "EU/UK Rapid Alert System for Food & Feed", required: true }
+      ],
+      veripura: [
+        "Automated live check against DEFRA approved establishment register",
+        "Confirms SIF (Specific Import Conditions) number is active and product category approved",
+        "Scans APHA topical issues for current suspensions or RASFF alerts",
+        "Flags any eligibility issues before order is placed — preventing downstream delays"
+      ],
+      twin: [
+        "Establishment eligibility check result notarised on IOTA ledger with timestamp",
+        "Creates immutable audit trail of pre-order compliance status"
+      ],
+      before: "Importer manually checks DEFRA spreadsheets, emails APHA for confirmation, and relies on memory for RASFF alerts. Process takes 2–5 days and is frequently incomplete.",
+      after: "VeriPura runs all checks in under 60 seconds against live databases. A go/no-go verdict is issued before the purchase order is placed. TWIN notarises the result.",
+      timesBefore: "2–5 days", timesAfter: "< 60 seconds"
+    },
+    {
+      id: "s2", phase: "origin", number: 2,
+      label: "Product Assessment",
+      sublabel: "Specification mapping & SISBOV segregation",
+      actors: ["consignor", "processors"],
+      docs: [
+        { name: "Product Specification Sheet", source: "Processor / Exporter", required: true },
+        { name: "Letter of Credit", source: "Buyer's Bank", required: true },
+        { name: "SISBOV Certificate", source: "Brazilian Ministry of Agriculture (MAPA)", required: true },
+        { name: "Cutting & Preparation Records", source: "Processor", required: true }
+      ],
+      veripura: [
+        "Maps product specification against UK import regulatory requirements automatically",
+        "Validates SISBOV segregation — confirming beef is from SISBOV-registered herds approved for EU/UK export",
+        "Cross-references product category against permitted cuts and processing methods",
+        "Identifies specification gaps before production begins"
+      ],
+      twin: [
+        "Product specification and SISBOV verification notarised as a digital credential",
+        "Processor identity anchored via IOTA DID (Decentralised Identifier)"
+      ],
+      before: "Product specs compared manually against UK requirements. SISBOV status checked via Brazilian government portal — often slow or unavailable. Discrepancies found at the border.",
+      after: "VeriPura maps specifications to regulatory requirements in real time. SISBOV segregation confirmed digitally. Issues caught before production, not at the port.",
+      timesBefore: "3–7 days", timesAfter: "< 2 hours"
+    },
+    {
+      id: "s3", phase: "predeparture", number: 3,
+      label: "Commercial & Export Docs",
+      sublabel: "Invoices, packing lists & export licensing",
+      actors: ["consignor", "processors"],
+      docs: [
+        { name: "Commercial Invoice", source: "Consignor / Seller", required: true },
+        { name: "Packing List", source: "Consignor / Seller", required: true },
+        { name: "Consignment Information", source: "Consignor / Freight Forwarder", required: true },
+        { name: "Export Licence (Brazil MAPA)", source: "Brazilian Ministry of Agriculture", required: true }
+      ],
+      veripura: [
+        "Ingests commercial invoice and packing list via document upload or API",
+        "Validates all fields against consignment data — catches mismatches in weight, product codes, HS codes",
+        "Confirms export licence validity and product category alignment",
+        "Flags discrepancies between commercial docs and regulatory declarations"
+      ],
+      twin: [
+        "Commercial document hash notarised — any subsequent tampering is detectable",
+        "Document set linked to consignment DID on IOTA ledger"
+      ],
+      before: "Customs brokers manually check invoices against packing lists. HS code errors are common. Export licence validity checked by phone or email with Brazilian authorities.",
+      after: "VeriPura validates the full commercial document set in minutes. Document hashes are notarised so any alteration is cryptographically detectable downstream.",
+      timesBefore: "1–3 days", timesAfter: "< 30 minutes"
+    },
+    {
+      id: "s4", phase: "predeparture", number: 4,
+      label: "Official Vet Inspection",
+      sublabel: "Health certification & ante/post-mortem records",
+      actors: ["officialvet", "consignor"],
+      docs: [
+        { name: "Export Health Certificate (EHC)", source: "Official Veterinarian (OV) — MAPA Brazil", required: true },
+        { name: "Ante-Mortem Inspection Record", source: "Official Veterinarian", required: true },
+        { name: "Post-Mortem Inspection Record", source: "Official Veterinarian", required: true },
+        { name: "New Brazil Health Certificate (NBHC)", source: "MAPA / Official Vet", required: true },
+        { name: "Residue Testing Results", source: "MAPA Accredited Laboratory", required: true }
+      ],
+      veripura: [
+        "Validates EHC structure against current APHA-approved template (templates change — VeriPura stays current)",
+        "Checks OV credentials and signing authority against MAPA registry",
+        "Cross-references residue test results against UK Maximum Residue Levels (MRL)",
+        "Confirms NBHC meets current GB import requirements post-Brexit"
+      ],
+      twin: [
+        "EHC and OV credentials notarised as verifiable credentials on IOTA",
+        "APHA border inspectors can verify authenticity without contacting Brazilian authorities"
+      ],
+      before: "EHCs arrive as PDFs or paper. APHA inspectors manually verify OV credentials with Brazilian authorities — a process that can take days and relies on email. Forgeries have occurred.",
+      after: "VeriPura validates the EHC structure and OV credentials automatically. TWIN issues a verifiable credential. Border inspectors scan a QR code to confirm authenticity instantly.",
+      timesBefore: "2–5 days (credential verification alone)", timesAfter: "Instant at border — credential pre-verified"
+    },
+    {
+      id: "s5", phase: "predeparture", number: 5,
+      label: "Loading & Dispatch",
+      sublabel: "Haulier assignment, sealing & temperature records",
+      actors: ["haulier", "consignor", "officialvet"],
+      docs: [
+        { name: "Transport Protocol (Road-ARIZ)", source: "Haulier / Consignor", required: true },
+        { name: "Vehicle Sealing Record", source: "Official Vet / Customs", required: true },
+        { name: "Temperature Log (pre-loading)", source: "Cold Store / Haulier", required: true },
+        { name: "CMR Waybill", source: "Haulier", required: true }
+      ],
+      veripura: [
+        "Validates transport protocol against APHA cold chain requirements",
+        "Confirms container/vehicle registration and approved transporter status",
+        "Ingests temperature data from cold store IoT sensors where available",
+        "Generates loading compliance summary linked to consignment record"
+      ],
+      twin: [
+        "Seal number, vehicle ID and temperature records notarised at point of loading",
+        "Any cold chain break detected in transit is recorded immutably"
+      ],
+      before: "Loading records are paper-based. Temperature logs are PDFs from cold stores. Seal numbers recorded manually. Discrepancies between loading records and border arrival are common.",
+      after: "Loading data flows into VeriPura automatically. TWIN notarises seal numbers and temperature ranges. Any discrepancy between dispatch and arrival is immediately flagged.",
+      timesBefore: "Manual, error-prone", timesAfter: "Automated, tamper-evident"
+    },
+    {
+      id: "s6", phase: "transit", number: 6,
+      label: "Port of Exit",
+      sublabel: "EU exit customs & manifest filing",
+      actors: ["customsbrokers", "ports", "haulier"],
+      docs: [
+        { name: "Export Declaration (EX-A)", source: "Customs Broker / Exporter", required: true },
+        { name: "Bill of Lading (Sea) / CMR (Road)", source: "Carrier", required: true },
+        { name: "Customs Status Document", source: "Customs Authority", required: true }
+      ],
+      veripura: [
+        "Pre-validates export declaration data against commercial document set",
+        "Confirms HS codes, declared values and product descriptions are consistent",
+        "Generates pre-departure summary for UK IPAFFS pre-notification"
+      ],
+      twin: [
+        "Bill of Lading / CMR reference notarised and linked to consignment DID",
+        "Creates immutable departure event on IOTA ledger"
+      ],
+      before: "Customs broker compiles export declaration manually from multiple document sources. Errors in HS codes or declared values cause delays or rejection at UK entry.",
+      after: "VeriPura pre-validates the export declaration against the full document set already on record. Errors are caught before the vessel or truck departs.",
+      timesBefore: "4–8 hours (compilation + correction cycles)", timesAfter: "< 1 hour (pre-validated)"
+    },
+    {
+      id: "s7", phase: "transit", number: 7,
+      label: "Sea Crossing / Ferry",
+      sublabel: "RoRo or deep-sea transit monitoring",
+      actors: ["ports", "haulier"],
+      docs: [
+        { name: "Vessel Manifest", source: "Shipping Line / Ferry Operator", required: true },
+        { name: "Transit Temperature Records", source: "Reefer Container / IoT", required: false },
+        { name: "Arrival Notification to IPAFFS", source: "Importer / Agent via IPAFFS", required: true }
+      ],
+      veripura: [
+        "Monitors vessel ETA via carrier API and updates IPAFFS pre-notification automatically",
+        "Flags any route deviations or delay that may affect cold chain compliance",
+        "Prepares UK border notification package in advance of arrival"
+      ],
+      twin: [
+        "Transit events (departure, crossing, estimated arrival) anchored on IOTA ledger",
+        "Cold chain data from reefer containers logged immutably if connected"
+      ],
+      before: "Importers manually track vessel ETAs and update IPAFFS notifications by hand. Late notifications result in consignment holds. Temperature data from reefer containers is rarely captured.",
+      after: "VeriPura integrates with carrier APIs to track the consignment in real time. IPAFFS notifications update automatically. TWIN logs each transit event immutably.",
+      timesBefore: "Manual tracking, frequent late notifications", timesAfter: "Automated, real-time, proactive"
+    },
+    {
+      id: "s8", phase: "entry", number: 8,
+      label: "Port of Entry",
+      sublabel: "IPAFFS check, APHA documentary & identity checks",
+      actors: ["borderagencies", "customsbrokers", "ports"],
+      docs: [
+        { name: "IPAFFS Pre-Notification", source: "Importer / Agent via IPAFFS", required: true },
+        { name: "Import Declaration (H1)", source: "Customs Broker via CDS", required: true },
+        { name: "Common Health Entry Document (CHED-P)", source: "APHA Border Inspector", required: true },
+        { name: "Seal Integrity Confirmation", source: "Border Force / APHA", required: true }
+      ],
+      veripura: [
+        "Supplies APHA inspector with pre-validated document summary — all checks already run",
+        "QR code on consignment links to full VeriPura compliance record and TWIN-notarised credentials",
+        "Flags any open issues or discrepancies before inspector begins physical check",
+        "CHED-P completion supported with pre-populated data from consignment record"
+      ],
+      twin: [
+        "APHA inspector verifies TWIN verifiable credentials via QR code — no contact with Brazil required",
+        "Border clearance event recorded on IOTA ledger, completing the compliance chain",
+        "Full audit trail from Brazilian farm to UK border available in single scan"
+      ],
+      before: "APHA inspectors manually verify a paper/PDF document pack. EHC authenticity checked by contacting Brazilian authorities. Average documentary check: 4–6 hours. Rejection rate driven largely by documentation failures.",
+      after: "Inspector scans QR code. All documents pre-validated, EHC credentials pre-verified via TWIN. Documentary check reduced to minutes. Physical inspection can proceed without documentary delays.",
+      timesBefore: "4–6 hours documentary + physical queue", timesAfter: "< 20 minutes documentary"
+    },
+    {
+      id: "s9", phase: "entry", number: 9,
+      label: "UK Customs & Release",
+      sublabel: "Customs Duty, VAT, tariff classification & release",
+      actors: ["customsbrokers", "borderagencies"],
+      docs: [
+        { name: "Import Declaration (H1) — Finalised", source: "Customs Broker via CDS", required: true },
+        { name: "Customs Duty & VAT Calculation", source: "HMRC / CDS", required: true },
+        { name: "Tariff Classification Evidence", source: "Importer / Broker", required: true },
+        { name: "Phytosanitary / Residue Clearance", source: "APHA", required: false }
+      ],
+      veripura: [
+        "Validates tariff classification against commodity code and product description",
+        "Confirms duty rate and VAT treatment against HMRC Trade Tariff",
+        "Supplies customs broker with pre-validated data package for CDS submission",
+        "Generates post-clearance compliance summary for importer records"
+      ],
+      twin: [
+        "Customs clearance event notarised on IOTA — completing the end-to-end compliance chain",
+        "Immutable record from Brazilian establishment to UK release — available for audit at any point"
+      ],
+      before: "Customs broker compiles duty calculations manually. Tariff classification errors are common and result in under/over-payment and potential penalties. Clearance takes 24–48 hours.",
+      after: "VeriPura pre-validates tariff classification and duty calculations. Customs broker submits with confidence. TWIN notarises the release event, completing the full audit chain.",
+      timesBefore: "24–48 hours", timesAfter: "2–4 hours"
+    },
+    {
+      id: "s10", phase: "entry", number: 10,
+      label: "Goods-In & Delivery",
+      sublabel: "Final delivery, inventory acceptance & traceability",
+      actors: ["consignee"],
+      docs: [
+        { name: "Delivery Note", source: "Haulier / Logistics", required: true },
+        { name: "Goods Receipt Confirmation", source: "Consignee / Buyer", required: true },
+        { name: "Final Temperature Record", source: "Haulier / Cold Store", required: true },
+        { name: "Exchange Bill of Lading (Consignee Copy)", source: "Shipping Line / Agent", required: true }
+      ],
+      veripura: [
+        "Goods receipt triggers final VeriPura compliance record closure",
+        "Temperature records at delivery compared against cold chain requirements",
+        "Full end-to-end compliance certificate issued and archived",
+        "Consignment data available for retailer / downstream traceability queries"
+      ],
+      twin: [
+        "Delivery confirmation notarised — full IOTA chain from Brazilian farm to UK warehouse complete",
+        "Compliance record permanently accessible for retailer audits, regulatory queries, or dispute resolution"
+      ],
+      before: "Delivery is the end of the process — no connection back to the compliance documentation. If a retailer or regulator queries provenance months later, manual records must be assembled from multiple parties.",
+      after: "A single TWIN-notarised chain connects the Brazilian herd to the UK warehouse. Any downstream query — retailer audit, APHA investigation, consumer recall — is resolved with one scan.",
+      timesBefore: "Days to weeks to reconstruct audit trail", timesAfter: "Instant — single QR code"
+    }
+  ],
+
+  actors: [
+    { id: "consignee",      label: "Consignee (Buyer)" },
+    { id: "producers",      label: "Producers" },
+    { id: "processors",     label: "Processors" },
+    { id: "consignor",      label: "Consignor (Seller)" },
+    { id: "officialvet",    label: "Official Vet" },
+    { id: "haulier",        label: "Haulier" },
+    { id: "customsbrokers", label: "Customs Brokers" },
+    { id: "ports",          label: "Ports & Carriers" },
+    { id: "borderagencies", label: "Border Agencies & Health Auth." }
+  ],
+
+  stats: [
+    { value: "24-72 hrs", label: "Typical UK customs clearance", sub: "POAO adds 24+ hrs; errors cause 1-5 day delays" },
+    { value: "£2.1B",   label: "UK beef imports annually",  sub: "Brazil is a major supplier" },
+    { value: "4–6 hrs", label: "Average border doc check",  sub: "Reduced to <20 min with VeriPura" },
+    { value: "100%",    label: "Audit trail coverage",      sub: "Farm to warehouse, immutable" }
+  ],
+
+  // ── SWIMLANE DATA ───────────────────────────────────────────
+  parties: [
+    { id: "signal",   label: "Signal",     role: "Freight Forwarder",        color: "#1a3a5c", colorLight: "#dde8f5", colorMid: "#5a8ab8", logo: "S"  },
+    { id: "veripura", label: "VeriPura",   role: "Compliance AI Platform",   color: "#1a6b4a", colorLight: "#d4ede3", colorMid: "#3a9e6e", logo: "VP" },
+    { id: "twin",     label: "TWIN/IOTA",  role: "Blockchain Notarisation",  color: "#7a4a00", colorLight: "#faecd0", colorMid: "#c49a2a", logo: "TW" }
+  ],
+
+  swimlanes: [
+    { stageId:"s1",
+      signal:   { intensity:"high", tasks:["Initiate import enquiry","Confirm supplier eligibility with client","Request Purchase Order from buyer"], docs:["Purchase Order","Supplier List"] },
+      veripura: { intensity:"high", tasks:["Live check vs DEFRA establishment register","Validate SIF number & product approval","Scan RASFF alerts & APHA suspensions","Issue go/no-go eligibility verdict"], docs:["DEFRA Register","SIF Verification","RASFF Check"] },
+      twin:     { intensity:"mid",  tasks:["Notarise eligibility check result with timestamp","Anchor consignment DID on IOTA ledger"], docs:["Eligibility Credential"] }
+    },
+    { stageId:"s2",
+      signal:   { intensity:"high", tasks:["Coordinate product spec with exporter","Arrange Letter of Credit with buyer's bank","Confirm SISBOV herd eligibility with supplier"], docs:["Product Spec","Letter of Credit"] },
+      veripura: { intensity:"high", tasks:["Map product spec to UK regulatory requirements","Validate SISBOV segregation status","Flag non-conforming cuts or processing methods"], docs:["SISBOV Certificate","Spec Sheet","Cutting Records"] },
+      twin:     { intensity:"mid",  tasks:["Notarise product spec & SISBOV verification","Anchor processor DID on IOTA"], docs:["Product Credential","Processor DID"] }
+    },
+    { stageId:"s3",
+      signal:   { intensity:"high", tasks:["Compile commercial invoice & packing list","File with customs broker for export licence check","Submit consignment data to VeriPura"], docs:["Commercial Invoice","Packing List","Consignment Info"] },
+      veripura: { intensity:"high", tasks:["Ingest & parse all commercial documents","Validate HS codes, weights, product descriptions","Cross-check export licence validity","Flag field-level discrepancies"], docs:["Export Licence","Invoice","Packing List"] },
+      twin:     { intensity:"high", tasks:["Notarise document hashes — tamper detection enabled","Link document set to consignment DID"], docs:["Doc Hash Record","Consignment DID"] }
+    },
+    { stageId:"s4",
+      signal:   { intensity:"mid",  tasks:["Coordinate EHC appointment with exporter","Receive certified health documents","Forward to VeriPura for validation"], docs:["EHC (received)","NBHC"] },
+      veripura: { intensity:"high", tasks:["Validate EHC against current APHA template","Check OV credentials vs MAPA registry","Cross-reference residue results vs UK MRLs","Confirm NBHC meets post-Brexit GB requirements"], docs:["EHC","OV Credentials","Residue Results","NBHC"] },
+      twin:     { intensity:"high", tasks:["Issue verifiable credential for EHC & OV","QR-scannable at UK border — no Brazil contact needed"], docs:["EHC Credential","OV Verifiable Cert"] }
+    },
+    { stageId:"s5",
+      signal:   { intensity:"high", tasks:["Book approved haulier & confirm vehicle registration","Oversee loading & sealing process","Collect CMR waybill & temperature logs"], docs:["CMR Waybill","Seal Record","Temp Log"] },
+      veripura: { intensity:"mid",  tasks:["Validate transport protocol vs APHA cold chain rules","Confirm approved transporter registration","Generate loading compliance summary"], docs:["Transport Protocol","Compliance Summary"] },
+      twin:     { intensity:"high", tasks:["Notarise seal number, vehicle ID & temperature range","Record dispatch event on IOTA ledger"], docs:["Seal Credential","Dispatch Event"] }
+    },
+    { stageId:"s6",
+      signal:   { intensity:"high", tasks:["File export declaration with customs broker","Obtain Bill of Lading from carrier","Confirm customs clearance at exit port"], docs:["Export Declaration","Bill of Lading","Customs Status"] },
+      veripura: { intensity:"mid",  tasks:["Pre-validate export declaration vs full document set","Confirm HS codes & values consistent","Generate IPAFFS pre-notification data package"], docs:["Export Declaration","IPAFFS Package"] },
+      twin:     { intensity:"mid",  tasks:["Notarise Bill of Lading reference on IOTA","Record departure event — immutable timestamp"], docs:["BoL Credential","Departure Event"] }
+    },
+    { stageId:"s7",
+      signal:   { intensity:"mid",  tasks:["Monitor vessel ETA & relay to client","File IPAFFS arrival notification","Coordinate port-side reception arrangements"], docs:["Vessel Manifest","IPAFFS Notification"] },
+      veripura: { intensity:"mid",  tasks:["Monitor carrier API for ETA updates","Auto-update IPAFFS pre-notification on deviation","Prepare UK border documentation package"], docs:["IPAFFS Update","Border Pack"] },
+      twin:     { intensity:"low",  tasks:["Log transit events on IOTA (departure, ETA, arrival)","Record reefer temperature data if IoT-connected"], docs:["Transit Events","Cold Chain Log"] }
+    },
+    { stageId:"s8",
+      signal:   { intensity:"high", tasks:["Present consignment at Border Control Post","Liaise with APHA & Border Force on behalf of importer","Submit import declaration via CDS"], docs:["IPAFFS Notification","Import Declaration H1"] },
+      veripura: { intensity:"high", tasks:["Supply APHA with pre-validated document summary","Generate QR code linking to full compliance record","Support CHED-P completion with pre-populated data","Flag any open discrepancies before physical check"], docs:["Compliance Summary","CHED-P Data","QR Credential"] },
+      twin:     { intensity:"high", tasks:["APHA verifies EHC credential via QR — instant, no Brazil contact","Record border inspection event on IOTA","Full farm-to-border audit trail available in one scan"], docs:["EHC Credential","Border Event","Audit Chain"] }
+    },
+    { stageId:"s9",
+      signal:   { intensity:"high", tasks:["Submit finalised import declaration via CDS","Calculate & pay customs duty and VAT","Obtain customs release notification"], docs:["Import Declaration H1","Duty Payment","Release Note"] },
+      veripura: { intensity:"mid",  tasks:["Validate tariff classification vs commodity code","Confirm duty rate & VAT treatment vs HMRC tariff","Supply pre-validated data package to customs broker"], docs:["Tariff Evidence","Duty Calculation"] },
+      twin:     { intensity:"mid",  tasks:["Notarise customs clearance event on IOTA","Complete end-to-end compliance chain record"], docs:["Clearance Credential","Compliance Chain"] }
+    },
+    { stageId:"s10",
+      signal:   { intensity:"mid",  tasks:["Arrange final delivery to buyer's cold store","Confirm goods receipt with client","Archive all transport & delivery documentation"], docs:["Delivery Note","Goods Receipt","Final Temp Log"] },
+      veripura: { intensity:"mid",  tasks:["Close compliance record on goods receipt","Compare final temperature vs cold chain spec","Issue end-to-end compliance certificate"], docs:["Compliance Certificate","Temp Comparison"] },
+      twin:     { intensity:"high", tasks:["Notarise delivery confirmation — chain complete","Permanent record: farm to warehouse, single QR","Available for retailer audits & APHA queries indefinitely"], docs:["Delivery Credential","Full Audit Chain"] }
+    }
+  ],
+
+  technology: {
+    veripura: {
+      name: "VeriPura",
+      tagline: "AI-powered compliance automation",
+      description: "A multi-agent AI workflow that ingests, validates and cross-references import documentation against live regulatory databases — DEFRA, APHA, HMRC Trade Tariff, IPAFFS — in real time. No manual checking. No missed updates. No border surprises.",
+      agents: [
+        "Intake Agent — document ingestion & classification",
+        "Mapping Agent — regulatory requirement matching",
+        "Parse Agent — field-level data extraction & validation",
+        "Trace Agent — supply chain actor verification",
+        "Comply Agent — regulatory cross-referencing",
+        "Shield Agent — fraud & forgery detection",
+        "Auditor Agent — discrepancy flagging",
+        "Verdict Agent — go/no-go compliance decision",
+        "Ledger Agent — TWIN/IOTA notarisation"
+      ]
+    },
+    twin: {
+      name: "TWIN (IOTA Foundation)",
+      tagline: "Immutable notarisation on IOTA",
+      description: "Trade & Workforce Innovation Network — powered by the IOTA distributed ledger. Every compliance event, document hash and verification result is anchored on IOTA, creating a tamper-proof, feeless audit chain from Brazilian farm to UK border. Verifiable credentials allow instant authentication without contacting source authorities.",
+      features: [
+        
+        "Verifiable Credentials — W3C standard, QR-scannable",
+        "Decentralised Identifiers (DIDs) for all parties",
+        "IOTA Rebased — scalable, energy-efficient",
+        "Gas Station — sponsored transactions for importers"
+      ]
+    }
+  }
+};
+</script>
 <style>
 /* ── RESET & BASE ── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -905,6 +1288,322 @@ footer {
   0%, 100% { transform: translateY(0); }
   50%       { transform: translateY(-3px); }
 }
+
+/* ── SWIMLANE SECTION ── */
+.swimlane-section {
+  padding: 0 2rem 5rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.swimlane-container {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  background: #fff;
+}
+
+/* Sticky scroll wrapper */
+.swimlane-scroll {
+  overflow-x: auto;
+  overflow-y: visible;
+}
+
+/* The full grid: label col + 10 stage cols */
+.sl-grid {
+  display: grid;
+  grid-template-columns: 160px repeat(10, minmax(130px, 1fr));
+  min-width: 1460px;
+}
+
+/* Phase header row */
+.sl-phase-header {
+  display: contents;
+}
+
+.sl-phase-corner {
+  background: var(--ink);
+  padding: 0.75rem 1rem;
+  display: flex; align-items: center;
+  border-right: 1px solid #2a2f38;
+}
+
+.sl-phase-cell {
+  padding: 0.6rem 0.75rem;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.62rem;
+  font-weight: 500;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: #fff;
+  display: flex; align-items: center;
+  border-right: 1px solid rgba(255,255,255,0.08);
+}
+
+/* Stage header row */
+.sl-stage-header {
+  display: contents;
+}
+
+.sl-stage-corner {
+  background: var(--cream);
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+}
+
+.sl-stage-col-header {
+  padding: 0.6rem 0.75rem 0.5rem;
+  border-bottom: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.sl-stage-col-header:hover { background: var(--cream); }
+.sl-stage-col-header.highlighted { background: var(--cream); }
+
+.sl-stage-col-num {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  color: var(--mid);
+  margin-bottom: 0.2rem;
+}
+
+.sl-stage-col-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--ink);
+  line-height: 1.25;
+}
+
+/* Party rows */
+.sl-party-row {
+  display: contents;
+}
+
+.sl-party-label {
+  padding: 1rem;
+  border-bottom: 1px solid var(--border);
+  border-right: 2px solid var(--border);
+  display: flex; flex-direction: column; justify-content: center; gap: 0.3rem;
+  background: #fafaf8;
+  position: sticky; left: 0; z-index: 2;
+}
+
+.sl-party-logo {
+  width: 32px; height: 32px;
+  border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  font-weight: 500;
+  color: #fff;
+  margin-bottom: 0.4rem;
+  flex-shrink: 0;
+}
+
+.sl-party-name {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--ink);
+  line-height: 1.2;
+}
+
+.sl-party-role {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  color: var(--mid);
+  line-height: 1.3;
+}
+
+/* Activity cells */
+.sl-cell {
+  padding: 0.75rem;
+  border-bottom: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column; gap: 0.5rem;
+  cursor: pointer;
+  transition: filter 0.15s;
+  min-height: 120px;
+  vertical-align: top;
+}
+
+.sl-cell:hover { filter: brightness(0.96); }
+.sl-cell.highlighted { outline: 2px solid; outline-offset: -2px; }
+
+.sl-cell.intensity-none {
+  background: #fafaf8;
+  opacity: 0.4;
+}
+
+.sl-cell-tasks {
+  display: flex; flex-direction: column; gap: 0.3rem;
+  flex: 1;
+}
+
+.sl-task {
+  font-size: 0.72rem;
+  line-height: 1.4;
+  color: var(--ink);
+  display: flex; align-items: start; gap: 0.35rem;
+}
+
+.sl-task-dot {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  margin-top: 5px;
+  flex-shrink: 0;
+}
+
+.sl-docs {
+  display: flex; flex-wrap: wrap; gap: 0.3rem;
+  padding-top: 0.4rem;
+  border-top: 1px dashed rgba(0,0,0,0.1);
+}
+
+.sl-doc-pill {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.58rem;
+  padding: 0.15rem 0.45rem;
+  border-radius: 3px;
+  border: 1px solid;
+  white-space: nowrap;
+  line-height: 1.4;
+}
+
+/* Intensity variants — set per party in JS */
+.sl-cell.intensity-high  {}
+.sl-cell.intensity-mid   { opacity: 0.85; }
+.sl-cell.intensity-low   { opacity: 0.6; }
+
+/* Legend for swimlane */
+.sl-legend {
+  display: flex; align-items: center; gap: 1.5rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.sl-legend-item {
+  display: flex; align-items: center; gap: 0.4rem;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  color: var(--mid);
+}
+
+.sl-legend-swatch {
+  width: 24px; height: 8px;
+  border-radius: 2px;
+}
+
+.sl-scroll-hint {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  color: var(--mid);
+  letter-spacing: 0.06em;
+  text-align: center;
+  padding: 0.65rem;
+  background: var(--cream);
+  border-top: 1px solid var(--border);
+}
+
+
+/* ══ DASHBOARD ══ */
+.db-section { background:#0d1117; color:#e8e8d8; padding:5rem 2rem; }
+.db-inner { max-width:1400px; margin:0 auto; }
+.db-eyebrow { font-family:'DM Mono',monospace; font-size:0.68rem; color:var(--gold); letter-spacing:0.12em; text-transform:uppercase; margin-bottom:0.75rem; display:flex; align-items:center; gap:0.6rem; }
+.db-eyebrow::before { content:''; display:inline-block; width:16px; height:1px; background:var(--gold); }
+.db-section h2 { color:#fff; margin-bottom:0.5rem; }
+.db-tagline { font-size:0.9rem; color:#6a6a5a; margin-bottom:2.5rem; max-width:600px; line-height:1.6; }
+.db-consignment { background:#1a1f28; border:1px solid #2a2f38; border-radius:10px; padding:1.25rem 1.5rem; display:flex; align-items:center; justify-content:space-between; gap:1.5rem; margin-bottom:1.5rem; flex-wrap:wrap; }
+.db-consignment-id { font-family:'DM Mono',monospace; font-size:0.75rem; color:var(--gold); letter-spacing:0.08em; margin-bottom:0.35rem; }
+.db-consignment-title { font-family:'DM Serif Display',serif; font-size:1.2rem; color:#fff; font-weight:400; }
+.db-consignment-meta { display:flex; gap:1.5rem; flex-wrap:wrap; margin-top:0.5rem; }
+.db-meta-item { font-family:'DM Mono',monospace; font-size:0.65rem; color:#6a6a5a; display:flex; flex-direction:column; gap:0.15rem; }
+.db-meta-val { color:#a8a898; font-size:0.72rem; }
+.db-status-badge { font-family:'DM Mono',monospace; font-size:0.68rem; padding:0.4rem 1rem; border-radius:20px; border:1px solid; letter-spacing:0.06em; white-space:nowrap; display:flex; align-items:center; gap:0.4rem; }
+.db-pipeline { display:grid; grid-template-columns:repeat(10,1fr); gap:3px; margin-bottom:1.5rem; }
+.db-pipe-cell { border-radius:4px; padding:0.5rem 0.4rem; text-align:center; transition:all 0.3s; cursor:pointer; }
+.db-pipe-num { font-family:'DM Mono',monospace; font-size:0.58rem; color:#5a5a4a; margin-bottom:0.25rem; }
+.db-pipe-label { font-size:0.62rem; font-weight:500; line-height:1.3; color:#8a8a7a; }
+.db-pipe-icon { font-size:1rem; margin-bottom:0.2rem; display:block; }
+.db-matrix-wrap { border:1px solid #2a2f38; border-radius:10px; overflow:hidden; margin-bottom:1.5rem; }
+.db-matrix-scroll { overflow-x:auto; }
+.db-matrix { min-width:1100px; border-collapse:collapse; width:100%; }
+.db-matrix th, .db-matrix td { padding:0; border:1px solid #1e2330; vertical-align:middle; }
+.db-matrix thead th { background:#131820; padding:0.55rem 0.5rem; font-family:'DM Mono',monospace; font-size:0.58rem; color:#5a5a5a; letter-spacing:0.05em; text-align:center; white-space:nowrap; }
+.db-matrix thead th.stage-th { font-size:0.6rem; color:#8a8a7a; min-width:90px; }
+.db-matrix thead th.doc-col-head { text-align:left; min-width:200px; padding:0.55rem 0.75rem; }
+.db-matrix tbody tr:hover td { background:rgba(255,255,255,0.02); }
+.db-doc-name { padding:0.55rem 0.75rem; font-size:0.72rem; color:#a8a898; background:#0f1318; white-space:nowrap; position:sticky; left:0; z-index:1; border-right:2px solid #2a2f38 !important; }
+.db-doc-cat { font-family:'DM Mono',monospace; font-size:0.55rem; color:#4a4a3a; text-transform:uppercase; letter-spacing:0.06em; margin-top:0.1rem; }
+.db-status-cell { text-align:center; padding:0.45rem 0.3rem; transition:all 0.4s; cursor:default; }
+.db-status-icon { font-size:0.85rem; display:block; line-height:1; }
+.db-status-label { font-family:'DM Mono',monospace; font-size:0.5rem; display:block; margin-top:0.15rem; letter-spacing:0.04em; }
+.st-validated { background:rgba(26,107,74,0.25); }
+.st-validated .db-status-icon { color:#3dc882; }
+.st-validated .db-status-label { color:#3dc882; }
+.st-pending { background:rgba(196,154,42,0.15); }
+.st-pending .db-status-icon { color:#c49a2a; }
+.st-pending .db-status-label { color:#c49a2a; }
+.st-rejected { background:rgba(220,50,50,0.25); }
+.st-rejected .db-status-icon { color:#e85555; }
+.st-rejected .db-status-label { color:#e85555; }
+.st-missing { background:rgba(100,100,100,0.12); }
+.st-missing .db-status-icon { color:#444; }
+.st-missing .db-status-label { color:#333; }
+.st-na { background:transparent; }
+.st-na .db-status-icon { color:#252525; }
+.st-na .db-status-label { color:#252525; }
+.st-active { background:rgba(15,90,138,0.35); }
+.st-active .db-status-icon { color:#5ab8f5; }
+.st-active .db-status-label { color:#5ab8f5; }
+.db-alert { display:none; align-items:start; gap:0.75rem; background:rgba(220,50,50,0.12); border:1px solid rgba(220,50,50,0.4); border-radius:8px; padding:1rem 1.25rem; margin-bottom:1.5rem; animation:fadeUp 0.4s ease; }
+.db-alert.show { display:flex; }
+.db-alert-icon { font-size:1.1rem; flex-shrink:0; margin-top:1px; }
+.db-alert-title { font-size:0.82rem; font-weight:600; color:#e85555; margin-bottom:0.25rem; }
+.db-alert-body { font-size:0.78rem; color:#a88888; line-height:1.6; }
+.db-resolve { display:none; align-items:start; gap:0.75rem; background:rgba(26,107,74,0.12); border:1px solid rgba(26,107,74,0.4); border-radius:8px; padding:1rem 1.25rem; margin-bottom:1.5rem; animation:fadeUp 0.4s ease; }
+.db-resolve.show { display:flex; }
+.db-resolve-title { font-size:0.82rem; font-weight:600; color:#3dc882; margin-bottom:0.25rem; }
+.db-resolve-body { font-size:0.78rem; color:#6a9a7a; line-height:1.6; }
+.db-party-strip { display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:#2a2f38; border-radius:10px; overflow:hidden; margin-bottom:1.5rem; }
+.db-party-card { background:#1a1f28; padding:1.25rem; transition:background 0.3s; }
+.db-party-card.active-party { background:#1e2535; }
+.db-party-card-head { display:flex; align-items:center; gap:0.6rem; margin-bottom:0.75rem; }
+.db-party-card-logo { width:28px; height:28px; border-radius:5px; display:flex; align-items:center; justify-content:center; font-family:'DM Mono',monospace; font-size:0.55rem; font-weight:500; color:#fff; }
+.db-party-card-name { font-size:0.8rem; font-weight:600; color:#e8e8d8; }
+.db-party-card-role { font-family:'DM Mono',monospace; font-size:0.58rem; color:#5a5a4a; }
+.db-activity-list { display:flex; flex-direction:column; gap:0.35rem; }
+.db-activity-item { display:flex; align-items:start; gap:0.4rem; font-size:0.72rem; line-height:1.45; color:#7a7a6a; transition:color 0.3s; }
+.db-activity-item.live { color:#c8c8b8; }
+.db-activity-dot { width:5px; height:5px; border-radius:50%; margin-top:5px; flex-shrink:0; background:#3a3a2a; transition:background 0.3s; }
+.db-activity-item.live .db-activity-dot { background:var(--gold); }
+.db-controls { display:flex; align-items:center; gap:0.75rem; margin-bottom:2rem; flex-wrap:wrap; }
+.db-btn { font-family:'DM Mono',monospace; font-size:0.72rem; letter-spacing:0.05em; padding:0.6rem 1.25rem; border-radius:6px; border:1px solid #2a2f38; background:#1a1f28; color:#c8c8b8; cursor:pointer; transition:all 0.2s; display:flex; align-items:center; gap:0.5rem; }
+.db-btn:hover { background:#252b38; border-color:#3a4050; color:#fff; }
+.db-btn.primary { background:var(--green); border-color:var(--green); color:#fff; }
+.db-btn.primary:hover { background:#145a3d; }
+.db-btn.danger { background:rgba(220,50,50,0.15); border-color:rgba(220,50,50,0.4); color:#e85555; }
+.db-btn.danger:hover { background:rgba(220,50,50,0.25); }
+.db-btn:disabled { opacity:0.35; cursor:not-allowed; }
+.db-progress-label { font-family:'DM Mono',monospace; font-size:0.65rem; color:#5a5a4a; margin-left:auto; }
+
+.db-legend { display:flex; gap:1.25rem; flex-wrap:wrap; margin-bottom:1.5rem; }
+.db-legend-item { display:flex; align-items:center; gap:0.4rem; font-family:'DM Mono',monospace; font-size:0.62rem; color:#5a5a4a; }
+.db-legend-swatch { width:14px; height:14px; border-radius:3px; display:flex; align-items:center; justify-content:center; font-size:0.55rem; }
+.db-scroll-hint { font-family:'DM Mono',monospace; font-size:0.62rem; color:#3a3a2a; text-align:center; padding:0.5rem; background:#131820; border-top:1px solid #1e2330; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+.blinking { animation:blink 1s infinite; }
+
+.db-info { display:none; align-items:start; gap:0.75rem; background:rgba(15,90,138,0.12); border:1px solid rgba(15,90,138,0.4); border-radius:8px; padding:1rem 1.25rem; margin-bottom:1.5rem; animation:fadeUp 0.4s ease; }
+.db-info.show { display:flex; }
+.db-info-title { font-size:0.82rem; font-weight:600; color:#5ab8f5; margin-bottom:0.25rem; }
+.db-info-body  { font-size:0.78rem; color:#6a8aaa; line-height:1.6; }
+.st-hold { background:rgba(232,160,32,0.2); }
+.st-hold .db-status-icon { color:#e8a020; }
+.st-hold .db-status-label { color:#e8a020; }
+.db-speed-select { font-family:'DM Mono',monospace; font-size:0.68rem; background:#1a1f28; color:#8a8a7a; border:1px solid #2a2f38; border-radius:5px; padding:0.5rem 0.6rem; cursor:pointer; }
 </style>
 </head>
 <body>
@@ -919,6 +1618,7 @@ footer {
   <nav class="header-nav">
     <button class="nav-btn active" onclick="scrollTo(0,0)">Overview</button>
     <button class="nav-btn" onclick="document.getElementById('process').scrollIntoView({behavior:'smooth'})">Process</button>
+    <button class="nav-btn" onclick="document.getElementById('swimlane').scrollIntoView({behavior:'smooth'})">Swimlanes</button>
     <button class="nav-btn" onclick="document.getElementById('technology').scrollIntoView({behavior:'smooth'})">Technology</button>
   </nav>
 </header>
@@ -969,6 +1669,95 @@ footer {
   <div class="click-hint">
     <span class="click-hint-icon">👆</span>
     Click any stage to see documents, VeriPura actions, and TWIN notarisation
+  </div>
+</div>
+
+
+<!-- ── SWIMLANE SECTION ── -->
+<div class="swimlane-section" id="swimlane">
+  <div class="section-header">
+    <span class="section-num mono">02</span>
+    <h2>Party Responsibilities by Stage</h2>
+  </div>
+  <div class="sl-legend" id="sl-legend"></div>
+  <div class="swimlane-container">
+    <div class="swimlane-scroll">
+      <div class="sl-grid" id="sl-grid"></div>
+    </div>
+    <div class="sl-scroll-hint">← scroll horizontally to see all 10 stages →</div>
+  </div>
+</div>
+
+
+<!-- ══ DASHBOARD SECTION ══ -->
+<div class="db-section" id="dashboard">
+  <div class="db-inner">
+    <div class="db-eyebrow">Live Compliance Dashboard</div>
+    <h2>Consignment Status Monitor</h2>
+    <p class="db-tagline">Follow a real consignment through all 10 compliance stages. Watch VeriPura catch a documentation failure before loading, and see how TWIN resolves a physical inspection hold at the border in minutes rather than days.</p>
+
+    <div class="db-consignment">
+      <div>
+        <div class="db-consignment-id">CONSIGNMENT BR-2026-0341</div>
+        <div class="db-consignment-title">18,500 kg Frozen Boneless Beef &mdash; Santos &rarr; Tilbury BCP</div>
+        <div class="db-consignment-meta">
+          <div class="db-meta-item"><span>Exporter</span><span class="db-meta-val">Frigorif&#237;co Marfrig S.A., Brazil</span></div>
+          <div class="db-meta-item"><span>Importer</span><span class="db-meta-val">Meadow Foods UK Ltd</span></div>
+          <div class="db-meta-item"><span>Freight Forwarder</span><span class="db-meta-val">Signal</span></div>
+          <div class="db-meta-item"><span>HS Code</span><span class="db-meta-val">0202.30 &mdash; Boneless frozen beef</span></div>
+          <div class="db-meta-item"><span>Vessel ETA</span><span class="db-meta-val">19 Mar 2026 &mdash; Tilbury BCP</span></div>
+          <div class="db-meta-item"><span>Risk Category</span><span class="db-meta-val">POAO &mdash; Medium risk / SPS checks required</span></div>
+        </div>
+      </div>
+      <div id="db-overall-badge" class="db-status-badge" style="border-color:#2a2f38;color:#5a5a4a">&#11044; Not started</div>
+    </div>
+
+    <div class="db-controls">
+      <button class="db-btn primary" id="db-play-btn" onclick="dbPlay()">&#9654; Run demo</button>
+      <button class="db-btn" id="db-step-fwd-btn" onclick="dbStepFwd()" disabled>&#8594; Step forward</button>
+      <button class="db-btn" id="db-step-back-btn" onclick="dbStepBack()" disabled>&#8592; Step back</button>
+      <button class="db-btn" id="db-pause-btn" onclick="dbPause()" disabled>&#9646;&#9646; Pause</button>
+      <button class="db-btn danger" onclick="dbReset()">&#8634; Reset</button>
+      <select class="db-speed-select" id="db-speed">
+        <option value="2200">Speed: Normal</option>
+        <option value="1000">Speed: Fast</option>
+        <option value="400">Speed: Presenter</option>
+      </select>
+      <span class="db-progress-label" id="db-progress-label">Press Run demo to begin</span>
+    </div>
+
+    <div class="db-alert" id="db-alert">
+      <div class="db-alert-icon">&#9888;</div>
+      <div><div class="db-alert-title" id="db-alert-title"></div><div class="db-alert-body" id="db-alert-body"></div></div>
+    </div>
+    <div class="db-resolve" id="db-resolve">
+      <div class="db-alert-icon">&#10003;</div>
+      <div><div class="db-resolve-title" id="db-resolve-title"></div><div class="db-resolve-body" id="db-resolve-body"></div></div>
+    </div>
+    <div class="db-info" id="db-info">
+      <div class="db-alert-icon">&#9432;</div>
+      <div><div class="db-info-title" id="db-info-title"></div><div class="db-info-body" id="db-info-body"></div></div>
+    </div>
+
+    <div class="db-pipeline" id="db-pipeline"></div>
+
+    <div class="db-legend">
+      <div class="db-legend-item"><div class="db-legend-swatch st-validated" style="color:#3dc882">&#10003;</div> Validated</div>
+      <div class="db-legend-item"><div class="db-legend-swatch st-active" style="color:#5ab8f5">&#9678;</div> In progress</div>
+      <div class="db-legend-item"><div class="db-legend-swatch st-pending" style="color:#c49a2a">&#9719;</div> Pending</div>
+      <div class="db-legend-item"><div class="db-legend-swatch st-rejected" style="color:#e85555">&#10007;</div> Rejected</div>
+      <div class="db-legend-item"><div class="db-legend-swatch st-hold" style="color:#e8a020">&#9654;</div> On hold</div>
+      <div class="db-legend-item"><div class="db-legend-swatch st-na" style="color:#2a2a2a">&mdash;</div> Not required</div>
+    </div>
+
+    <div class="db-matrix-wrap">
+      <div class="db-matrix-scroll">
+        <table class="db-matrix"><thead id="db-matrix-head"></thead><tbody id="db-matrix-body"></tbody></table>
+      </div>
+      <div class="db-scroll-hint">&larr; scroll to view all stages &rarr;</div>
+    </div>
+
+    <div class="db-party-strip" id="db-party-strip"></div>
   </div>
 </div>
 
@@ -1224,6 +2013,118 @@ document.addEventListener('keydown', e => {
   if (e.key === 'ArrowLeft'  && activeStageIdx !== null) navigatePanel(-1);
 });
 
+
+// ── SWIMLANE ──────────────────────────────────────────────────
+
+// Party legend
+const slLegend = document.getElementById('sl-legend');
+CONFIG.parties.forEach(p => {
+  slLegend.innerHTML += `
+    <div class="sl-legend-item">
+      <div class="sl-legend-swatch" style="background:${p.color}"></div>
+      <strong style="color:${p.color}">${p.label}</strong> — ${p.role}
+    </div>`;
+});
+
+// Intensity opacity map
+const intensityAlpha = { high: 'ff', mid: 'bb', low: '77', none: '22' };
+
+// Build grid
+const grid = document.getElementById('sl-grid');
+
+// ── ROW 1: Phase colour header ──
+// Corner
+grid.innerHTML += `<div class="sl-phase-corner">
+  <span style="font-family:'DM Mono',monospace;font-size:0.6rem;color:#5a5a4a;letter-spacing:0.08em;text-transform:uppercase;">Stage →</span>
+</div>`;
+
+// Phase cells — span appropriate columns
+CONFIG.stages.forEach((stage, idx) => {
+  const pc = { origin:'#1a6b4a', predeparture:'#0f5a8a', transit:'#6b3fa0', entry:'#b84c00' };
+  const c = pc[stage.phase] || '#333';
+  grid.innerHTML += `<div class="sl-phase-cell" style="background:${c}">S${stage.number}</div>`;
+});
+
+// ── ROW 2: Stage label header ──
+grid.innerHTML += `<div class="sl-stage-corner"></div>`;
+CONFIG.stages.forEach((stage, idx) => {
+  const pc = { origin:'#1a6b4a', predeparture:'#0f5a8a', transit:'#6b3fa0', entry:'#b84c00' };
+  const c = pc[stage.phase] || '#333';
+  grid.innerHTML += `
+    <div class="sl-stage-col-header" id="slh-${idx}" onclick="highlightColumn(${idx})" style="border-top:3px solid ${c}">
+      <div class="sl-stage-col-num mono">Stage ${stage.number}</div>
+      <div class="sl-stage-col-label">${stage.label}</div>
+    </div>`;
+});
+
+// ── PARTY ROWS ──
+CONFIG.parties.forEach(party => {
+  // Label cell
+  grid.innerHTML += `
+    <div class="sl-party-label">
+      <div class="sl-party-logo" style="background:${party.color}">${party.logo}</div>
+      <div class="sl-party-name">${party.label}</div>
+      <div class="sl-party-role">${party.role}</div>
+    </div>`;
+
+  // One cell per stage
+  CONFIG.swimlanes.forEach((row, stageIdx) => {
+    const cell = row[party.id];
+    if (!cell || cell.intensity === 'none') {
+      grid.innerHTML += `<div class="sl-cell intensity-none" id="slc-${party.id}-${stageIdx}"></div>`;
+      return;
+    }
+
+    const bgHex = party.colorLight;
+    const dotColor = party.colorMid;
+    const pillBg = party.colorLight;
+    const pillBorder = party.colorMid;
+    const pillText = party.color;
+
+    const tasksHtml = cell.tasks.map(t => `
+      <div class="sl-task">
+        <div class="sl-task-dot" style="background:${dotColor}"></div>
+        <span>${t}</span>
+      </div>`).join('');
+
+    const docsHtml = cell.docs.map(d => `
+      <span class="sl-doc-pill" style="background:${pillBg};border-color:${pillBorder};color:${pillText}">${d}</span>
+    `).join('');
+
+    grid.innerHTML += `
+      <div class="sl-cell intensity-${cell.intensity}" id="slc-${party.id}-${stageIdx}"
+           style="background:${bgHex}" onclick="openPanel(${stageIdx})">
+        <div class="sl-cell-tasks">${tasksHtml}</div>
+        <div class="sl-docs">${docsHtml}</div>
+      </div>`;
+  });
+});
+
+// Column highlight
+let activeCol = null;
+function highlightColumn(idx) {
+  // Clear previous
+  if (activeCol !== null) {
+    document.getElementById('slh-' + activeCol)?.classList.remove('highlighted');
+    CONFIG.parties.forEach(p => {
+      document.getElementById('slc-' + p.id + '-' + activeCol)?.classList.remove('highlighted');
+    });
+  }
+  if (activeCol === idx) { activeCol = null; openPanel(idx); return; }
+  activeCol = idx;
+  document.getElementById('slh-' + idx)?.classList.add('highlighted');
+  CONFIG.parties.forEach(p => {
+    const c = document.getElementById('slc-' + p.id + '-' + idx);
+    if (c) {
+      c.classList.add('highlighted');
+      const pc = { origin:'#1a6b4a', predeparture:'#0f5a8a', transit:'#6b3fa0', entry:'#b84c00' };
+      c.style.outlineColor = pc[CONFIG.stages[idx].phase] || '#333';
+    }
+  });
+  // Also open the detail panel
+  openPanel(idx);
+}
+
 // ── TECHNOLOGY ────────────────────────────────────────────────
 const techGrid = document.getElementById('tech-grid');
 const tech = CONFIG.technology;
@@ -1245,6 +2146,415 @@ const tech = CONFIG.technology;
       </div>
     </div>`;
 });
+
+// ══════════════════════════════════════════════════════
+// DASHBOARD ENGINE — v2
+// Auto-play with full manual controls.
+// Act 1: Stage 4 EHC caught pre-shipment by VeriPura, resolved, no delay.
+// Act 2: Stage 8 reefer temperature anomaly triggers PHA hold;
+//         TWIN cold-chain credential resolves it in minutes.
+// ══════════════════════════════════════════════════════
+
+const DB_DOCS = [
+  { name:"Purchase Order",                    cat:"Commercial",    stages:[1] },
+  { name:"DEFRA Establishment Check",         cat:"Regulatory",    stages:[1] },
+  { name:"SIF Number Verification",           cat:"Regulatory",    stages:[1] },
+  { name:"APHA / RASFF Alert Scan",           cat:"Regulatory",    stages:[1] },
+  { name:"Product Specification Sheet",       cat:"Commercial",    stages:[2,3] },
+  { name:"Letter of Credit",                  cat:"Financial",     stages:[2] },
+  { name:"SISBOV Certificate",                cat:"Origin",        stages:[2] },
+  { name:"Commercial Invoice",                cat:"Commercial",    stages:[3,6] },
+  { name:"Packing List",                      cat:"Commercial",    stages:[3,6] },
+  { name:"Export Licence (MAPA)",             cat:"Regulatory",    stages:[3] },
+  { name:"Export Health Certificate (EHC)",   cat:"Veterinary",    stages:[4,8] },
+  { name:"OV Credentials (MAPA verified)",    cat:"Veterinary",    stages:[4] },
+  { name:"Residue Test Results",              cat:"Veterinary",    stages:[4] },
+  { name:"New Brazil Health Certificate",     cat:"Veterinary",    stages:[4,8] },
+  { name:"Transport Protocol (Road-ARIZ)",    cat:"Logistics",     stages:[5] },
+  { name:"CMR Waybill",                       cat:"Logistics",     stages:[5,6,7] },
+  { name:"Vehicle Sealing Record",            cat:"Logistics",     stages:[5] },
+  { name:"Reefer Temperature Log (TWIN)",     cat:"Cold Chain",    stages:[5,7,8,10] },
+  { name:"Export Declaration (EX-A)",         cat:"Customs",       stages:[6] },
+  { name:"Bill of Lading",                    cat:"Shipping",      stages:[6,7,8] },
+  { name:"Vessel Manifest",                   cat:"Shipping",      stages:[7] },
+  { name:"IPAFFS Pre-Notification",           cat:"UK Regulatory", stages:[7,8] },
+  { name:"Import Declaration (H1)",           cat:"UK Customs",    stages:[8,9] },
+  { name:"CHED-P",                            cat:"UK Regulatory", stages:[8] },
+  { name:"TWIN Verifiable Credentials",       cat:"Blockchain",    stages:[1,2,3,4,5,6,7,8,9,10] },
+  { name:"Customs Duty Calculation",          cat:"UK Customs",    stages:[9] },
+  { name:"Tariff Classification Evidence",    cat:"UK Customs",    stages:[9] },
+  { name:"Delivery Note",                     cat:"Logistics",     stages:[10] },
+  { name:"Goods Receipt Confirmation",        cat:"Commercial",    stages:[10] },
+  { name:"End-to-End Compliance Certificate", cat:"VeriPura",      stages:[10] },
+];
+
+const phaseColorsDb = { origin:"#1a6b4a", predeparture:"#0f5a8a", transit:"#6b3fa0", entry:"#b84c00" };
+const pipeIcons = ["&#128203;","&#128300;","&#128196;","&#129658;","&#128155;","&#128195;","&#9972;","&#127963;","&#9989;","&#128230;"];
+
+const ST = {
+  NA:        { cls:"st-na",        icon:"&mdash;", label:"" },
+  PENDING:   { cls:"st-pending",   icon:"&#9719;", label:"Pending" },
+  ACTIVE:    { cls:"st-active",    icon:"&#9678;", label:"Checking" },
+  VALIDATED: { cls:"st-validated", icon:"&#10003;",label:"Validated" },
+  REJECTED:  { cls:"st-rejected",  icon:"&#10007;",label:"Rejected" },
+  HOLD:      { cls:"st-hold",      icon:"&#9654;", label:"On hold" },
+};
+
+// Per-stage narrative shown in the info banner during normal stages
+const STAGE_NOTES = [
+  null, // s1 — no special note
+  null,
+  null,
+  // s4 handled by drama
+  null,null,null,null,
+  // s8 handled by drama
+  null,null,null
+];
+
+let dbStatuses  = [];
+let dbStageHistory = []; // stack for step-back
+let dbCurrentStage = 0;
+let dbPlaying   = false;
+let dbTimer     = null;
+let dbAct1Done  = false;
+let dbAct2Done  = false;
+let dbDramaActive = false; // block auto-advance while drama plays
+
+function dbInit() {
+  dbStatuses  = DB_DOCS.map(doc =>
+    Array(10).fill(null).map((_,si) => doc.stages.includes(si+1) ? "PENDING" : "NA")
+  );
+  dbStageHistory = [];
+  dbCurrentStage = 0;
+  dbPlaying   = false;
+  dbTimer     = null;
+  dbAct1Done  = false;
+  dbAct2Done  = false;
+  dbDramaActive = false;
+  dbHideAllBanners();
+  dbRenderPipeline();
+  dbRenderMatrix();
+  dbRenderPartyStrip(-1);
+  dbUpdateBadge("not-started");
+  dbSetLabel("Press <strong>Run demo</strong> to begin");
+  dbSetBtns({ play:true, fwd:false, back:false, pause:false });
+}
+
+// ── Render pipeline bar ──────────────────────────────
+function dbRenderPipeline() {
+  const el = document.getElementById("db-pipeline");
+  if (!el) return;
+  el.innerHTML = "";
+  CONFIG.stages.forEach((s,i) => {
+    const pc   = phaseColorsDb[s.phase] || "#333";
+    const done = i < dbCurrentStage;
+    const cur  = i === dbCurrentStage - 1;
+    const bg     = cur ? pc+"44" : done ? pc+"22" : "#131820";
+    const border = cur ? pc      : done ? pc+"88" : "#2a2f38";
+    const lc     = cur ? "#fff"  : done ? "#8a8a7a" : "#4a4a3a";
+    el.innerHTML += "<div class=\"db-pipe-cell\" style=\"background:"+bg+";border:1px solid "+border+"\" onclick=\"dbJumpTo("+(i+1)+")\">"
+      +"<div class=\"db-pipe-num\" style=\"color:"+(cur?"#aaa":"")+"\">"+(i+1)+"</div>"
+      +"<span class=\"db-pipe-icon\">"+pipeIcons[i]+"</span>"
+      +"<div class=\"db-pipe-label\" style=\"color:"+lc+"\">"+s.label+"</div></div>";
+  });
+}
+
+// ── Render document matrix ───────────────────────────
+function dbRenderMatrix() {
+  const head = document.getElementById("db-matrix-head");
+  const body = document.getElementById("db-matrix-body");
+  if (!head || !body) return;
+  head.innerHTML = "<tr><th class=\"doc-col-head\">Document</th>"
+    + CONFIG.stages.map((s,i) => {
+        const pc  = phaseColorsDb[s.phase]||"#333";
+        const cur = i === dbCurrentStage-1;
+        return "<th class=\"stage-th\" style=\""+(cur?"color:"+pc+";border-bottom:2px solid "+pc:"")+"\">"+"S"+(i+1)+" "+s.label+"</th>";
+      }).join("") + "</tr>";
+  body.innerHTML = "";
+  DB_DOCS.forEach((doc,di) => {
+    const cells = dbStatuses[di].map((st,si) => {
+      const s   = ST[st] || ST.NA;
+      const cur = si === dbCurrentStage-1;
+      return "<td class=\"db-status-cell "+s.cls+(cur?" blinking":"")+"\">"
+        +"<span class=\"db-status-icon\">"+s.icon+"</span>"
+        +"<span class=\"db-status-label\">"+s.label+"</span></td>";
+    }).join("");
+    body.innerHTML += "<tr><td class=\"db-doc-name\">"+doc.name+"<div class=\"db-doc-cat\">"+doc.cat+"</div></td>"+cells+"</tr>";
+  });
+}
+
+// ── Render party strip ───────────────────────────────
+function dbRenderPartyStrip(stageIdx) {
+  const strip = document.getElementById("db-party-strip");
+  if (!strip) return;
+  strip.innerHTML = "";
+  CONFIG.parties.forEach(party => {
+    const row  = stageIdx >= 0 ? CONFIG.swimlanes[stageIdx] : null;
+    const cell = row ? row[party.id] : null;
+    const isActive = cell && cell.intensity === "high";
+    const tasks = cell ? cell.tasks : [];
+    strip.innerHTML += "<div class=\"db-party-card "+(isActive?"active-party":"")+"\">"
+      +"<div class=\"db-party-card-head\"><div class=\"db-party-card-logo\" style=\"background:"+party.color+"\">"+party.logo+"</div>"
+      +"<div><div class=\"db-party-card-name\">"+party.label+"</div><div class=\"db-party-card-role\">"+party.role+"</div></div></div>"
+      +"<div class=\"db-activity-list\">"+(tasks.length
+        ? tasks.map((t,i)=>"<div class=\"db-activity-item "+(i===0?"live":"")+"\"><div class=\"db-activity-dot\"></div><span>"+t+"</span></div>").join("")
+        : "<div style=\"font-family:DM Mono,monospace;font-size:0.65rem;color:#3a3a2a\">No active tasks</div>")
+      +"</div></div>";
+  });
+}
+
+// ── Core advance function ────────────────────────────
+function dbAdvanceStage(targetStage) {
+  const si = targetStage - 1;
+  // Mark active
+  DB_DOCS.forEach((doc,di) => {
+    if (doc.stages.includes(targetStage)) dbStatuses[di][si] = "ACTIVE";
+  });
+  dbRenderMatrix(); dbRenderPipeline(); dbRenderPartyStrip(si);
+  dbHideAllBanners();
+  dbUpdateBadge("in-progress", targetStage);
+  dbSetLabel("Stage " + targetStage + " of 10 &mdash; " + CONFIG.stages[si].label);
+
+  // Resolve after brief pause
+  setTimeout(() => {
+    if (targetStage === 4 && !dbAct1Done) {
+      dbAct1();
+    } else if (targetStage === 8 && !dbAct2Done) {
+      dbAct2();
+    } else {
+      // Normal resolution
+      DB_DOCS.forEach((doc,di) => {
+        if (doc.stages.includes(targetStage)) dbStatuses[di][si] = "VALIDATED";
+      });
+      dbRenderMatrix(); dbRenderPipeline();
+      if (targetStage === 10) { dbUpdateBadge("complete"); dbSetLabel("All 10 stages complete &mdash; consignment cleared &#10003;"); }
+      if (!dbDramaActive) dbScheduleNext();
+    }
+  }, 900);
+}
+
+// ── ACT 1: Stage 4 — EHC caught pre-shipment ────────
+function dbAct1() {
+  dbDramaActive = true;
+  const si = 3;
+  // EHC and OV fail
+  DB_DOCS.forEach((doc,di) => {
+    if (!doc.stages.includes(4)) return;
+    if (doc.name === "Export Health Certificate (EHC)" || doc.name === "OV Credentials (MAPA verified)") {
+      dbStatuses[di][si] = "REJECTED";
+    } else {
+      dbStatuses[di][si] = "VALIDATED";
+    }
+  });
+  dbRenderMatrix();
+  dbShowAlert(
+    "&#9888; VeriPura: EHC Validation Failure — Stage 4 (Pre-Shipment)",
+    "VeriPura has detected that the Export Health Certificate does not match the current APHA-approved GB template (updated January 2026). The signing OV's authorisation could not be confirmed against the MAPA registry. "
+    +"<strong style=\"color:#e85555\">Signal notified. Shipment hold recommended — loading suspended.</strong> "
+    +"Under legacy processes, this error would surface at Tilbury BCP after 4&ndash;6 weeks in transit, triggering a 1&ndash;5 day documentary hold with cold-chain integrity at risk."
+  );
+  // Auto-resolve after 4s
+  setTimeout(() => {
+    DB_DOCS.forEach((doc,di) => {
+      if (doc.stages.includes(4)) dbStatuses[di][si] = "VALIDATED";
+    });
+    dbRenderMatrix();
+    dbShowResolve(
+      "&#10003; Resolved by VeriPura — 31 hours before scheduled loading",
+      "Exporter contacted. Corrected EHC issued by MAPA Official Vet on current GB template. OV credentials re-verified. TWIN notarised the updated EHC as a W3C Verifiable Credential on the IOTA ledger. "
+      +"<strong style=\"color:#3dc882\">No border hold. No cold-chain risk. No delay to vessel departure.</strong> "
+      +"This is the primary value of pre-shipment compliance validation."
+    );
+    dbAct1Done = true;
+    dbDramaActive = false;
+    dbScheduleNext();
+  }, 4500);
+}
+
+// ── ACT 2: Stage 8 — Temperature anomaly at Tilbury ─
+function dbAct2() {
+  dbDramaActive = true;
+  const si = 7;
+  // All docs validate — this is a physical hold, not documentary
+  DB_DOCS.forEach((doc,di) => {
+    if (!doc.stages.includes(8)) return;
+    if (doc.name === "Reefer Temperature Log (TWIN)") {
+      dbStatuses[di][si] = "HOLD";
+    } else {
+      dbStatuses[di][si] = "VALIDATED";
+    }
+  });
+  dbRenderMatrix();
+  dbShowAlert(
+    "&#9888; Port Health Authority Hold — Stage 8: Tilbury BCP",
+    "Physical inspection triggered. The Port Health Authority reefer inspection device has logged a temperature reading of &minus;17.2&deg;C at one point during the crossing — marginally above the &minus;18&deg;C threshold for frozen POAO. "
+    +"<strong style=\"color:#e85555\">Consignment placed on hold pending cold-chain integrity review.</strong> "
+    +"Standard resolution without verified cold-chain data: laboratory sampling, 24&ndash;72 additional hours, potential destruction order."
+  );
+  // Resolve via TWIN cold-chain credential
+  setTimeout(() => {
+    DB_DOCS.forEach((doc,di) => {
+      if (doc.stages.includes(8)) dbStatuses[di][si] = "VALIDATED";
+    });
+    dbRenderMatrix();
+    dbShowResolve(
+      "&#10003; Hold Lifted — TWIN Cold-Chain Credential Verified",
+      "Signal presented the TWIN-notarised Reefer Temperature Log to the Port Health Authority inspector. "
+      +"The log — anchored on the IOTA ledger at the point of loading and updated at each transit checkpoint — shows the reading was a 4-minute sensor spike during the RoRo ramp crossing, not a sustained exceedance. "
+      +"Core product temperature remained within specification throughout. "
+      +"<strong style=\"color:#3dc882\">Hold lifted in 47 minutes. No sampling required. No product destroyed. Vessel departed on schedule.</strong> "
+      +"Without TWIN: 24&ndash;72 hour hold, laboratory costs, and potential rejection of the entire 18,500 kg consignment."
+    );
+    dbAct2Done = true;
+    dbDramaActive = false;
+    dbScheduleNext();
+  }, 5000);
+}
+
+// ── Auto-play scheduler ──────────────────────────────
+function dbScheduleNext() {
+  if (!dbPlaying || dbCurrentStage >= 10) {
+    dbPlaying = false;
+    dbSetBtns({ play: dbCurrentStage < 10, fwd: dbCurrentStage < 10, back: dbCurrentStage > 0, pause: false });
+    return;
+  }
+  const delay = parseInt(document.getElementById("db-speed").value) || 2200;
+  dbTimer = setTimeout(() => {
+    dbCurrentStage++;
+    dbStageHistory.push(dbCurrentStage);
+    dbAdvanceStage(dbCurrentStage);
+  }, delay);
+}
+
+// ── Controls ─────────────────────────────────────────
+function dbPlay() {
+  if (dbCurrentStage >= 10) dbReset();
+  dbPlaying = true;
+  dbSetBtns({ play:false, fwd:true, back:true, pause:true });
+  if (dbCurrentStage === 0) {
+    dbCurrentStage = 1;
+    dbStageHistory = [1];
+    dbAdvanceStage(1);
+  } else {
+    dbScheduleNext();
+  }
+}
+
+function dbStepFwd() {
+  if (dbCurrentStage >= 10 || dbDramaActive) return;
+  clearTimeout(dbTimer);
+  dbPlaying = false;
+  dbCurrentStage++;
+  dbStageHistory.push(dbCurrentStage);
+  dbAdvanceStage(dbCurrentStage);
+  dbSetBtns({ play:true, fwd:dbCurrentStage<10, back:dbCurrentStage>0, pause:false });
+}
+
+function dbStepBack() {
+  if (dbCurrentStage <= 0 || dbDramaActive) return;
+  clearTimeout(dbTimer);
+  dbPlaying = false;
+  dbDramaActive = false;
+  dbHideAllBanners();
+  // Rewind: clear current stage statuses back to PENDING
+  const si = dbCurrentStage - 1;
+  DB_DOCS.forEach((doc,di) => {
+    if (doc.stages.includes(dbCurrentStage)) dbStatuses[di][si] = "PENDING";
+  });
+  // Also reset drama flags if stepping back over them
+  if (dbCurrentStage >= 4) dbAct1Done = false;
+  if (dbCurrentStage >= 8) dbAct2Done = false;
+  dbCurrentStage--;
+  dbStageHistory.pop();
+  dbRenderMatrix(); dbRenderPipeline(); dbRenderPartyStrip(dbCurrentStage - 1);
+  dbUpdateBadge(dbCurrentStage === 0 ? "not-started" : "in-progress", dbCurrentStage);
+  dbSetLabel(dbCurrentStage === 0 ? "Press <strong>Run demo</strong> to begin" : "Stage "+dbCurrentStage+" of 10");
+  dbSetBtns({ play:true, fwd:dbCurrentStage<10, back:dbCurrentStage>0, pause:false });
+}
+
+function dbPause() {
+  clearTimeout(dbTimer);
+  dbPlaying = false;
+  dbSetBtns({ play:true, fwd:dbCurrentStage<10, back:dbCurrentStage>0, pause:false });
+}
+
+function dbReset() {
+  clearTimeout(dbTimer);
+  dbPlaying = false;
+  dbInit();
+}
+
+function dbJumpTo(stage) {
+  if (dbDramaActive) return;
+  clearTimeout(dbTimer);
+  dbPlaying = false;
+  // Validate all stages before target
+  for (let s = 1; s < stage; s++) {
+    const si = s-1;
+    DB_DOCS.forEach((doc,di) => {
+      if (doc.stages.includes(s)) dbStatuses[di][si] = "VALIDATED";
+    });
+  }
+  // Reset statuses at target and after to PENDING
+  for (let s = stage; s <= 10; s++) {
+    const si = s-1;
+    DB_DOCS.forEach((doc,di) => {
+      if (doc.stages.includes(s)) dbStatuses[di][si] = "PENDING";
+    });
+  }
+  if (stage > 4) dbAct1Done = true;
+  if (stage > 8) dbAct2Done = true;
+  if (stage <= 4) dbAct1Done = false;
+  if (stage <= 8) dbAct2Done = false;
+  dbCurrentStage = stage - 1;
+  dbCurrentStage++;
+  dbStageHistory = [dbCurrentStage];
+  dbAdvanceStage(dbCurrentStage);
+  dbSetBtns({ play:true, fwd:dbCurrentStage<10, back:dbCurrentStage>0, pause:false });
+}
+
+// ── Helpers ───────────────────────────────────────────
+function dbSetBtns(s) {
+  document.getElementById("db-play-btn").disabled      = !s.play;
+  document.getElementById("db-step-fwd-btn").disabled  = !s.fwd;
+  document.getElementById("db-step-back-btn").disabled = !s.back;
+  document.getElementById("db-pause-btn").disabled     = !s.pause;
+}
+
+function dbSetLabel(html) {
+  const el = document.getElementById("db-progress-label");
+  if (el) el.innerHTML = html;
+}
+
+function dbUpdateBadge(state, stage) {
+  const el = document.getElementById("db-overall-badge");
+  if (!el) return;
+  const base = "font-family:DM Mono,monospace;font-size:0.68rem;padding:0.4rem 1rem;border-radius:20px;border:1px solid;letter-spacing:0.06em;display:flex;align-items:center;gap:0.4rem;white-space:nowrap;";
+  if (state==="not-started") { el.setAttribute("style",base+"border-color:#2a2f38;color:#5a5a4a"); el.innerHTML="&#11044; Not started"; }
+  else if (state==="in-progress") { el.setAttribute("style",base+"border-color:#0f5a8a88;color:#5ab8f5;background:rgba(15,90,138,0.15)"); el.innerHTML="&#11044; Stage "+stage+" in progress"; }
+  else if (state==="complete") { el.setAttribute("style",base+"border-color:#1a6b4a88;color:#3dc882;background:rgba(26,107,74,0.15)"); el.innerHTML="&#10003; Compliance complete"; }
+}
+
+function dbShowAlert(title, body) {
+  dbHideAllBanners();
+  const t=document.getElementById("db-alert-title"); if(t) t.innerHTML=title;
+  const b=document.getElementById("db-alert-body");  if(b) b.innerHTML=body;
+  const el=document.getElementById("db-alert"); if(el){ el.classList.add("show"); el.scrollIntoView({behavior:"smooth",block:"nearest"}); }
+}
+function dbShowResolve(title, body) {
+  dbHideAllBanners();
+  const t=document.getElementById("db-resolve-title"); if(t) t.innerHTML=title;
+  const b=document.getElementById("db-resolve-body");  if(b) b.innerHTML=body;
+  const el=document.getElementById("db-resolve"); if(el) el.classList.add("show");
+}
+function dbHideAllBanners() {
+  ["db-alert","db-resolve","db-info"].forEach(id => {
+    const el=document.getElementById(id); if(el) el.classList.remove("show");
+  });
+}
+
+dbInit();
+
 </script>
 </body>
 </html>
