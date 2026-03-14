@@ -1,0 +1,1250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Brazilian Beef → UK | VeriPura × TWIN</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="data.js"></script>
+<style>
+/* ── RESET & BASE ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --ink:       #0d1117;
+  --paper:     #f7f4ef;
+  --cream:     #ede9e0;
+  --green:     #1a6b4a;
+  --green-lt:  #d4ede3;
+  --blue:      #0f5a8a;
+  --blue-lt:   #d0e6f5;
+  --purple:    #6b3fa0;
+  --purple-lt: #e8dff5;
+  --amber:     #b84c00;
+  --amber-lt:  #fae8d8;
+  --gold:      #c49a2a;
+  --mid:       #5a5a52;
+  --border:    #d8d4cb;
+  --panel-w:   480px;
+  --header-h:  72px;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Instrument Sans', sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── TYPOGRAPHY ── */
+.serif { font-family: 'DM Serif Display', serif; }
+.mono  { font-family: 'DM Mono', monospace; }
+
+h1 { font-family: 'DM Serif Display', serif; font-size: clamp(2rem, 4vw, 3.2rem); line-height: 1.1; font-weight: 400; }
+h2 { font-family: 'DM Serif Display', serif; font-size: 1.6rem; font-weight: 400; }
+h3 { font-family: 'DM Serif Display', serif; font-size: 1.2rem; font-weight: 400; }
+
+/* ── HEADER ── */
+header {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  height: var(--header-h);
+  background: var(--ink);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 2rem;
+  border-bottom: 1px solid #2a2f38;
+}
+
+.header-brand {
+  display: flex; align-items: center; gap: 1rem;
+}
+
+.header-logo {
+  font-family: 'DM Serif Display', serif;
+  font-size: 1.1rem;
+  color: #fff;
+  letter-spacing: -0.02em;
+}
+
+.header-logo span {
+  color: var(--gold);
+}
+
+.header-sep {
+  width: 1px; height: 24px;
+  background: #3a3f48;
+}
+
+.header-sub {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.7rem;
+  color: #8a8a7a;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.header-nav {
+  display: flex; gap: 0.25rem;
+}
+
+.nav-btn {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.72rem;
+  color: #8a8a7a;
+  background: none;
+  border: 1px solid transparent;
+  padding: 0.35rem 0.75rem;
+  border-radius: 4px;
+  cursor: pointer;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  transition: all 0.15s;
+}
+
+.nav-btn:hover, .nav-btn.active {
+  color: #fff;
+  border-color: #3a3f48;
+  background: #1a1f28;
+}
+
+/* ── HERO ── */
+.hero {
+  margin-top: var(--header-h);
+  padding: 5rem 2rem 4rem;
+  max-width: 1400px;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: calc(var(--header-h) + 0px);
+  padding-top: 5rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem;
+  align-items: start;
+}
+
+.hero-left {}
+
+.hero-eyebrow {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.72rem;
+  color: var(--green);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 1.25rem;
+  display: flex; align-items: center; gap: 0.5rem;
+}
+
+.hero-eyebrow::before {
+  content: '';
+  display: inline-block;
+  width: 20px; height: 2px;
+  background: var(--green);
+}
+
+.hero h1 { margin-bottom: 1.5rem; }
+
+.hero-intro {
+  font-size: 1.05rem;
+  line-height: 1.75;
+  color: var(--mid);
+  max-width: 480px;
+  margin-bottom: 2.5rem;
+}
+
+.hero-cta {
+  display: inline-flex; align-items: center; gap: 0.75rem;
+  background: var(--green);
+  color: #fff;
+  font-family: 'Instrument Sans', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 500;
+  padding: 0.9rem 1.75rem;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
+  text-decoration: none;
+}
+
+.hero-cta:hover { background: #145a3d; transform: translateY(-1px); }
+
+.hero-cta-arrow { font-size: 1.1rem; transition: transform 0.2s; }
+.hero-cta:hover .hero-cta-arrow { transform: translateX(3px); }
+
+/* ── STATS GRID ── */
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.stat-card {
+  background: var(--paper);
+  padding: 1.5rem 1.75rem;
+}
+
+.stat-value {
+  font-family: 'DM Serif Display', serif;
+  font-size: 2.2rem;
+  color: var(--ink);
+  line-height: 1;
+  margin-bottom: 0.4rem;
+}
+
+.stat-label {
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--ink);
+  margin-bottom: 0.25rem;
+}
+
+.stat-sub {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--mid);
+}
+
+/* ── SECTION WRAPPER ── */
+.section {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 2rem 5rem;
+}
+
+.section-header {
+  display: flex; align-items: baseline; gap: 1.5rem;
+  margin-bottom: 2.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.section-num {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--mid);
+  letter-spacing: 0.1em;
+}
+
+/* ── PHASE STRIP ── */
+.phase-strip {
+  display: flex;
+  gap: 2px;
+  margin-bottom: 0.75rem;
+  position: relative;
+}
+
+.phase-tab {
+  flex: 1;
+  padding: 0.6rem 1rem;
+  border-radius: 5px 5px 0 0;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #fff;
+  display: flex; align-items: center; gap: 0.5rem;
+  position: relative;
+}
+
+.phase-tab::after {
+  content: '';
+  position: absolute;
+  bottom: -2px; left: 0; right: 0;
+  height: 2px;
+  background: inherit;
+  opacity: 0.5;
+}
+
+/* ── PROCESS MAP ── */
+.process-map {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 0 8px 8px 8px;
+  overflow: hidden;
+}
+
+.map-scroll {
+  overflow-x: auto;
+  padding: 2rem;
+  min-width: 0;
+}
+
+.stages-track {
+  display: flex;
+  gap: 0;
+  min-width: 900px;
+  position: relative;
+}
+
+/* connector line */
+.stages-track::before {
+  content: '';
+  position: absolute;
+  top: 32px;
+  left: 40px;
+  right: 40px;
+  height: 2px;
+  background: var(--border);
+  z-index: 0;
+}
+
+.stage-node {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+  position: relative;
+  z-index: 1;
+  padding: 0.5rem 0.25rem;
+  border-radius: 8px;
+  transition: background 0.2s;
+}
+
+.stage-node:hover { background: var(--cream); }
+.stage-node.active { background: var(--cream); }
+
+.stage-bubble {
+  width: 64px; height: 64px;
+  border-radius: 50%;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  border: 2.5px solid;
+  background: #fff;
+  transition: all 0.2s;
+  position: relative;
+}
+
+.stage-num {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  line-height: 1;
+}
+
+.stage-icon {
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.stage-node.active .stage-bubble,
+.stage-node:hover .stage-bubble {
+  transform: scale(1.1);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+}
+
+.stage-label {
+  font-size: 0.72rem;
+  font-weight: 500;
+  text-align: center;
+  line-height: 1.3;
+  max-width: 80px;
+  color: var(--ink);
+}
+
+.stage-sublabel {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  color: var(--mid);
+  text-align: center;
+  max-width: 80px;
+  line-height: 1.3;
+  display: none;
+}
+
+/* Phase color mapping */
+.phase-origin   { border-color: var(--green);  color: var(--green); }
+.phase-predeparture { border-color: var(--blue); color: var(--blue); }
+.phase-transit  { border-color: var(--purple); color: var(--purple); }
+.phase-entry    { border-color: var(--amber);  color: var(--amber); }
+
+.stage-node.active .phase-origin   { background: var(--green-lt); }
+.stage-node.active .phase-predeparture { background: var(--blue-lt); }
+.stage-node.active .phase-transit  { background: var(--purple-lt); }
+.stage-node.active .phase-entry    { background: var(--amber-lt); }
+
+/* ── DETAIL PANEL ── */
+.detail-panel-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(13,17,23,0.45);
+  z-index: 200;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+  backdrop-filter: blur(2px);
+}
+
+.detail-panel-overlay.open {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.detail-panel {
+  position: fixed;
+  top: 0; right: 0; bottom: 0;
+  width: var(--panel-w);
+  background: var(--paper);
+  z-index: 201;
+  transform: translateX(100%);
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow-y: auto;
+  box-shadow: -8px 0 40px rgba(0,0,0,0.15);
+  display: flex; flex-direction: column;
+}
+
+.detail-panel.open {
+  transform: translateX(0);
+}
+
+.panel-header {
+  padding: 1.5rem 1.75rem 1rem;
+  border-bottom: 1px solid var(--border);
+  position: sticky; top: 0;
+  background: var(--paper);
+  z-index: 10;
+  display: flex; align-items: start; justify-content: space-between; gap: 1rem;
+}
+
+.panel-close {
+  width: 32px; height: 32px;
+  border: 1px solid var(--border);
+  background: none;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 1rem;
+  color: var(--mid);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.15s;
+}
+
+.panel-close:hover { background: var(--cream); color: var(--ink); }
+
+.panel-stage-num {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.68rem;
+  color: var(--mid);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 0.4rem;
+}
+
+.panel-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 1.4rem;
+  line-height: 1.2;
+  font-weight: 400;
+}
+
+.panel-sublabel {
+  font-size: 0.8rem;
+  color: var(--mid);
+  margin-top: 0.3rem;
+}
+
+.panel-body {
+  padding: 1.5rem 1.75rem;
+  display: flex; flex-direction: column; gap: 1.75rem;
+  flex: 1;
+}
+
+/* ── BEFORE / AFTER BLOCK ── */
+.before-after {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  background: var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.ba-card {
+  padding: 1rem 1.25rem;
+}
+
+.ba-card.before { background: #fff8f5; }
+.ba-card.after  { background: #f2faf6; }
+
+.ba-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.62rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+  display: flex; align-items: center; gap: 0.4rem;
+}
+
+.ba-card.before .ba-label { color: var(--amber); }
+.ba-card.after  .ba-label { color: var(--green); }
+
+.ba-text {
+  font-size: 0.82rem;
+  line-height: 1.65;
+  color: var(--ink);
+}
+
+.ba-time {
+  display: inline-block;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.68rem;
+  margin-top: 0.6rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: 20px;
+}
+
+.ba-card.before .ba-time { background: var(--amber-lt); color: var(--amber); }
+.ba-card.after  .ba-time { background: var(--green-lt); color: var(--green); }
+
+/* ── PANEL SECTION ── */
+.panel-section {}
+
+.panel-section-title {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--mid);
+  margin-bottom: 0.75rem;
+  display: flex; align-items: center; gap: 0.5rem;
+}
+
+.panel-section-title::after {
+  content: '';
+  flex: 1; height: 1px;
+  background: var(--border);
+}
+
+/* ── DOCS LIST ── */
+.docs-list {
+  display: flex; flex-direction: column; gap: 0.5rem;
+}
+
+.doc-item {
+  display: flex; align-items: start; gap: 0.75rem;
+  padding: 0.65rem 0.85rem;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  transition: border-color 0.15s;
+}
+
+.doc-item:hover { border-color: #b0aba0; }
+
+.doc-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  margin-top: 5px;
+  flex-shrink: 0;
+}
+
+.doc-dot.required { background: var(--green); }
+.doc-dot.optional { background: var(--border); }
+
+.doc-name {
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--ink);
+  line-height: 1.35;
+}
+
+.doc-source {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.67rem;
+  color: var(--mid);
+  margin-top: 0.15rem;
+}
+
+/* ── VERIPURA ACTIONS ── */
+.vp-list {
+  display: flex; flex-direction: column; gap: 0.4rem;
+}
+
+.vp-item {
+  display: flex; align-items: start; gap: 0.6rem;
+  font-size: 0.82rem;
+  line-height: 1.55;
+  color: var(--ink);
+}
+
+.vp-check {
+  color: var(--green);
+  font-size: 0.85rem;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+/* ── TWIN BLOCK ── */
+.twin-block {
+  background: var(--ink);
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+  display: flex; flex-direction: column; gap: 0.6rem;
+}
+
+.twin-header {
+  display: flex; align-items: center; gap: 0.6rem;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+.twin-dot {
+  width: 7px; height: 7px;
+  background: var(--gold);
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.5; transform: scale(0.8); }
+}
+
+.twin-items {
+  display: flex; flex-direction: column; gap: 0.4rem;
+}
+
+.twin-item {
+  display: flex; align-items: start; gap: 0.6rem;
+  font-size: 0.8rem;
+  line-height: 1.55;
+  color: #c8c8b8;
+}
+
+.twin-arrow {
+  color: var(--gold);
+  font-size: 0.75rem;
+  margin-top: 3px;
+  flex-shrink: 0;
+}
+
+/* ── ACTORS BLOCK ── */
+.actors-row {
+  display: flex; flex-wrap: wrap; gap: 0.4rem;
+}
+
+.actor-tag {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.68rem;
+  padding: 0.3rem 0.7rem;
+  border-radius: 20px;
+  border: 1px solid;
+}
+
+/* ── TECHNOLOGY SECTION ── */
+.tech-section {
+  background: var(--ink);
+  color: #fff;
+  padding: 5rem 2rem;
+  margin-top: 2rem;
+}
+
+.tech-inner {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.tech-eyebrow {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--gold);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+  display: flex; align-items: center; gap: 0.5rem;
+}
+
+.tech-eyebrow::before {
+  content: '';
+  display: inline-block;
+  width: 20px; height: 1px;
+  background: var(--gold);
+}
+
+.tech-section h2 { color: #fff; margin-bottom: 3rem; }
+
+.tech-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px;
+  background: #2a2f38;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.tech-card {
+  background: #1a1f28;
+  padding: 2.5rem;
+}
+
+.tech-card-name {
+  font-family: 'DM Serif Display', serif;
+  font-size: 1.5rem;
+  color: #fff;
+  margin-bottom: 0.4rem;
+}
+
+.tech-card-tag {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.68rem;
+  color: var(--gold);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+}
+
+.tech-card-desc {
+  font-size: 0.88rem;
+  line-height: 1.75;
+  color: #a0a090;
+  margin-bottom: 1.5rem;
+}
+
+.tech-features {
+  display: flex; flex-direction: column; gap: 0.5rem;
+}
+
+.tech-feature {
+  display: flex; align-items: start; gap: 0.65rem;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.72rem;
+  color: #c8c8b8;
+  line-height: 1.5;
+}
+
+.tf-bullet {
+  color: var(--gold);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+/* ── FOOTER ── */
+footer {
+  background: var(--ink);
+  border-top: 1px solid #2a2f38;
+  padding: 2rem;
+  display: flex; align-items: center; justify-content: space-between;
+  max-width: 100%;
+}
+
+.footer-brand {
+  font-family: 'DM Serif Display', serif;
+  font-size: 1rem;
+  color: #fff;
+}
+
+.footer-brand span { color: var(--gold); }
+
+.footer-meta {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  color: #5a5a4a;
+  letter-spacing: 0.06em;
+}
+
+/* ── PANEL NAVIGATION ── */
+.panel-nav {
+  display: flex; gap: 0.5rem;
+  padding: 1rem 1.75rem;
+  border-top: 1px solid var(--border);
+  background: var(--cream);
+}
+
+.pnav-btn {
+  flex: 1;
+  padding: 0.6rem 1rem;
+  border: 1px solid var(--border);
+  background: #fff;
+  border-radius: 6px;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  color: var(--ink);
+  transition: all 0.15s;
+  text-align: center;
+}
+
+.pnav-btn:hover { background: var(--ink); color: #fff; border-color: var(--ink); }
+.pnav-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+.pnav-btn:disabled:hover { background: #fff; color: var(--ink); border-color: var(--border); }
+
+/* ── SCROLL INDICATOR ── */
+.scroll-hint {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  color: var(--mid);
+  letter-spacing: 0.06em;
+  text-align: center;
+  padding: 0.75rem;
+  background: var(--cream);
+  border-top: 1px solid var(--border);
+}
+
+/* ── INTRO STRIP ── */
+.intro-strip {
+  background: var(--ink);
+  color: #fff;
+  padding: 1rem 2rem;
+  display: flex; align-items: center; justify-content: space-between; gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.intro-strip-text {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.72rem;
+  color: #8a8a7a;
+  letter-spacing: 0.04em;
+}
+
+.intro-strip-badges {
+  display: flex; gap: 0.5rem; flex-wrap: wrap;
+}
+
+.badge {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.06em;
+  padding: 0.3rem 0.75rem;
+  border-radius: 20px;
+  border: 1px solid #3a3f48;
+  color: #8a8a7a;
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 900px) {
+  .hero { grid-template-columns: 1fr; gap: 3rem; padding-top: 3rem; }
+  .tech-grid { grid-template-columns: 1fr; }
+  :root { --panel-w: 100vw; }
+  .header-nav { display: none; }
+}
+
+@media (max-width: 600px) {
+  .before-after { grid-template-columns: 1fr; }
+  .stats-grid { grid-template-columns: 1fr; }
+}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.hero-left  { animation: fadeUp 0.6s ease both; }
+.hero-right { animation: fadeUp 0.6s 0.15s ease both; }
+
+.stage-node {
+  animation: fadeUp 0.4s ease both;
+}
+
+/* Legend */
+.legend {
+  display: flex; gap: 1.5rem; flex-wrap: wrap;
+  margin-bottom: 1.25rem;
+}
+
+.legend-item {
+  display: flex; align-items: center; gap: 0.4rem;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  color: var(--mid);
+  letter-spacing: 0.05em;
+}
+
+.legend-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  border: 2px solid;
+}
+
+/* Progress chain */
+.chain-bar {
+  height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+  margin-bottom: 2.5rem;
+  overflow: hidden;
+}
+
+.chain-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--green), var(--blue), var(--purple), var(--amber));
+  width: 0%;
+  transition: width 0.4s ease;
+  border-radius: 2px;
+}
+
+.click-hint {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.67rem;
+  color: var(--mid);
+  letter-spacing: 0.05em;
+  text-align: center;
+  margin-top: 1.25rem;
+  display: flex; align-items: center; justify-content: center; gap: 0.4rem;
+}
+
+.click-hint-icon { animation: bounce 2s infinite; }
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-3px); }
+}
+</style>
+</head>
+<body>
+
+<!-- ── HEADER ── -->
+<header>
+  <div class="header-brand">
+    <div class="header-logo">Veri<span>Pura</span> × TWIN</div>
+    <div class="header-sep"></div>
+    <div class="header-sub">Brazilian Beef → UK Import Compliance</div>
+  </div>
+  <nav class="header-nav">
+    <button class="nav-btn active" onclick="scrollTo(0,0)">Overview</button>
+    <button class="nav-btn" onclick="document.getElementById('process').scrollIntoView({behavior:'smooth'})">Process</button>
+    <button class="nav-btn" onclick="document.getElementById('technology').scrollIntoView({behavior:'smooth'})">Technology</button>
+  </nav>
+</header>
+
+<!-- ── INTRO STRIP ── -->
+<div style="margin-top: var(--header-h);">
+  <div class="intro-strip">
+    <div class="intro-strip-text" id="meta-audience"></div>
+    <div class="intro-strip-badges" id="meta-badges"></div>
+  </div>
+</div>
+
+<!-- ── HERO ── -->
+<div class="hero">
+  <div class="hero-left">
+    <div class="hero-eyebrow">Use Case 1 — Frozen Beef Products</div>
+    <h1 id="hero-title"></h1>
+    <p class="hero-intro" id="hero-intro"></p>
+    <button class="hero-cta" onclick="document.getElementById('process').scrollIntoView({behavior:'smooth'})">
+      Explore the process <span class="hero-cta-arrow">→</span>
+    </button>
+  </div>
+  <div class="hero-right">
+    <div class="stats-grid" id="stats-grid"></div>
+  </div>
+</div>
+
+<!-- ── PROCESS SECTION ── -->
+<div class="section" id="process">
+  <div class="section-header">
+    <span class="section-num mono">01</span>
+    <h2>The Import Journey</h2>
+  </div>
+
+  <div class="legend" id="phase-legend"></div>
+
+  <div class="chain-bar"><div class="chain-fill" id="chain-fill"></div></div>
+
+  <div class="phase-strip" id="phase-strip"></div>
+
+  <div class="process-map">
+    <div class="map-scroll">
+      <div class="stages-track" id="stages-track"></div>
+    </div>
+    <div class="scroll-hint">← scroll to see all stages →</div>
+  </div>
+
+  <div class="click-hint">
+    <span class="click-hint-icon">👆</span>
+    Click any stage to see documents, VeriPura actions, and TWIN notarisation
+  </div>
+</div>
+
+<!-- ── TECHNOLOGY SECTION ── -->
+<div class="tech-section" id="technology">
+  <div class="tech-inner">
+    <div class="tech-eyebrow">Powered by</div>
+    <h2>The Technology Stack</h2>
+    <div class="tech-grid" id="tech-grid"></div>
+  </div>
+</div>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="footer-brand">Veri<span>Pura</span> × TWIN</div>
+  <div class="footer-meta" id="footer-meta"></div>
+</footer>
+
+<!-- ── DETAIL PANEL ── -->
+<div class="detail-panel-overlay" id="overlay" onclick="closePanel()"></div>
+<div class="detail-panel" id="detail-panel">
+  <div class="panel-header">
+    <div>
+      <div class="panel-stage-num" id="panel-stage-num"></div>
+      <div class="panel-title" id="panel-title"></div>
+      <div class="panel-sublabel" id="panel-sublabel"></div>
+    </div>
+    <button class="panel-close" onclick="closePanel()">✕</button>
+  </div>
+  <div class="panel-body" id="panel-body"></div>
+  <div class="panel-nav">
+    <button class="pnav-btn" id="prev-btn" onclick="navigatePanel(-1)">← Previous stage</button>
+    <button class="pnav-btn" id="next-btn" onclick="navigatePanel(1)">Next stage →</button>
+  </div>
+</div>
+
+<script>
+// ── INIT ──────────────────────────────────────────────────────
+let activeStageIdx = null;
+
+const phaseColors = {
+  origin:       { bg: '#d4ede3', border: '#1a6b4a', text: '#1a6b4a', dark: '#1a6b4a' },
+  predeparture: { bg: '#d0e6f5', border: '#0f5a8a', text: '#0f5a8a', dark: '#0f5a8a' },
+  transit:      { bg: '#e8dff5', border: '#6b3fa0', text: '#6b3fa0', dark: '#6b3fa0' },
+  entry:        { bg: '#fae8d8', border: '#b84c00', text: '#b84c00', dark: '#b84c00' }
+};
+
+const stageIcons = ['📋','🔬','📄','🩺','🚛','🛃','⛴️','🏛️','✅','📦'];
+
+// ── META ──
+document.getElementById('meta-audience').textContent = CONFIG.meta.audience;
+document.getElementById('footer-meta').textContent = CONFIG.meta.version;
+document.getElementById('hero-title').textContent = CONFIG.meta.subtitle;
+document.getElementById('hero-intro').textContent =
+  'Brazil is one of the UK\'s largest beef suppliers. The import journey spans 10 compliance stages, 9 actor types, and dozens of documents. Manual processes create delays, errors, and fraud risk at every step. VeriPura and TWIN change that.';
+
+// ── META BADGES ──
+const badgeEl = document.getElementById('meta-badges');
+['APHA','DEFRA','HMRC Border Force','IPAFFS','CDS'].forEach(b => {
+  const d = document.createElement('span');
+  d.className = 'badge';
+  d.textContent = b;
+  badgeEl.appendChild(d);
+});
+
+// ── STATS ──
+const sg = document.getElementById('stats-grid');
+CONFIG.stats.forEach(s => {
+  sg.innerHTML += `
+    <div class="stat-card">
+      <div class="stat-value">${s.value}</div>
+      <div class="stat-label">${s.label}</div>
+      <div class="stat-sub mono">${s.sub}</div>
+    </div>`;
+});
+
+// ── PHASE LEGEND ──
+const legend = document.getElementById('phase-legend');
+CONFIG.phases.forEach(p => {
+  const pc = phaseColors[p.id];
+  legend.innerHTML += `
+    <div class="legend-item">
+      <div class="legend-dot" style="border-color:${pc.border};background:${pc.bg}"></div>
+      ${p.label}
+    </div>`;
+});
+
+// ── PHASE STRIP ──
+const phaseStrip = document.getElementById('phase-strip');
+const phaseCounts = {};
+CONFIG.stages.forEach(s => { phaseCounts[s.phase] = (phaseCounts[s.phase]||0)+1; });
+
+CONFIG.phases.forEach(p => {
+  const pc = phaseColors[p.id];
+  const count = phaseCounts[p.id] || 0;
+  const tab = document.createElement('div');
+  tab.className = 'phase-tab';
+  tab.style.cssText = `background:${pc.border};flex:${count}`;
+  tab.innerHTML = `<span>${p.label}</span>`;
+  phaseStrip.appendChild(tab);
+});
+
+// ── STAGES TRACK ──
+const track = document.getElementById('stages-track');
+CONFIG.stages.forEach((stage, idx) => {
+  const pc = phaseColors[stage.phase];
+  const node = document.createElement('div');
+  node.className = 'stage-node';
+  node.id = `stage-${idx}`;
+  node.style.animationDelay = `${idx * 0.05}s`;
+  node.innerHTML = `
+    <div class="stage-bubble phase-${stage.phase}" style="border-color:${pc.border}">
+      <span class="stage-num mono" style="color:${pc.text}">S${stage.number}</span>
+      <span class="stage-icon">${stageIcons[idx]||'📋'}</span>
+    </div>
+    <div class="stage-label">${stage.label}</div>`;
+  node.onclick = () => openPanel(idx);
+  track.appendChild(node);
+});
+
+// ── PANEL ────────────────────────────────────────────────────
+function openPanel(idx) {
+  const stage = CONFIG.stages[idx];
+  const pc = phaseColors[stage.phase];
+  activeStageIdx = idx;
+
+  // Update active node
+  document.querySelectorAll('.stage-node').forEach((n,i) => {
+    n.classList.toggle('active', i === idx);
+  });
+
+  // Chain fill
+  document.getElementById('chain-fill').style.width =
+    `${((idx+1)/CONFIG.stages.length)*100}%`;
+
+  // Panel header
+  document.getElementById('panel-stage-num').textContent =
+    `Stage ${stage.number} of ${CONFIG.stages.length} — ${CONFIG.phases.find(p=>p.id===stage.phase).label}`;
+  document.getElementById('panel-title').textContent = stage.label;
+  document.getElementById('panel-sublabel').textContent = stage.sublabel;
+
+  // Nav buttons
+  document.getElementById('prev-btn').disabled = idx === 0;
+  document.getElementById('next-btn').disabled = idx === CONFIG.stages.length - 1;
+
+  // Panel body
+  const body = document.getElementById('panel-body');
+  body.innerHTML = '';
+
+  // Before / After
+  const ba = document.createElement('div');
+  ba.innerHTML = `
+    <div class="panel-section-title">Before vs. After VeriPura × TWIN</div>
+    <div class="before-after">
+      <div class="ba-card before">
+        <div class="ba-label">⚠ Before</div>
+        <div class="ba-text">${stage.before}</div>
+        <div class="ba-time">⏱ ${stage.timesBefore}</div>
+      </div>
+      <div class="ba-card after">
+        <div class="ba-label">✓ After</div>
+        <div class="ba-text">${stage.after}</div>
+        <div class="ba-time">⚡ ${stage.timesAfter}</div>
+      </div>
+    </div>`;
+  body.appendChild(ba);
+
+  // Documents
+  const docsDiv = document.createElement('div');
+  docsDiv.className = 'panel-section';
+  docsDiv.innerHTML = `<div class="panel-section-title">Documents Required</div>
+    <div class="docs-list">${stage.docs.map(d => `
+      <div class="doc-item">
+        <div class="doc-dot ${d.required?'required':'optional'}"></div>
+        <div>
+          <div class="doc-name">${d.name}</div>
+          <div class="doc-source">Source: ${d.source}</div>
+        </div>
+      </div>`).join('')}
+    </div>`;
+  body.appendChild(docsDiv);
+
+  // VeriPura
+  const vpDiv = document.createElement('div');
+  vpDiv.className = 'panel-section';
+  vpDiv.innerHTML = `<div class="panel-section-title" style="color:var(--green)">VeriPura Automates</div>
+    <div class="vp-list">${stage.veripura.map(v => `
+      <div class="vp-item">
+        <span class="vp-check">✓</span>
+        <span>${v}</span>
+      </div>`).join('')}
+    </div>`;
+  body.appendChild(vpDiv);
+
+  // TWIN
+  const twinDiv = document.createElement('div');
+  twinDiv.className = 'panel-section';
+  twinDiv.innerHTML = `<div class="panel-section-title">TWIN Notarises</div>
+    <div class="twin-block">
+      <div class="twin-header">
+        <div class="twin-dot"></div>
+        IOTA Ledger — Immutable Record
+      </div>
+      <div class="twin-items">${stage.twin.map(t => `
+        <div class="twin-item">
+          <span class="twin-arrow">▸</span>
+          <span>${t}</span>
+        </div>`).join('')}
+      </div>
+    </div>`;
+  body.appendChild(twinDiv);
+
+  // Actors
+  const actorsDiv = document.createElement('div');
+  actorsDiv.className = 'panel-section';
+  const actorTags = stage.actors.map(aId => {
+    const actor = CONFIG.actors.find(a => a.id === aId);
+    if (!actor) return '';
+    const pc2 = phaseColors[stage.phase];
+    return `<span class="actor-tag" style="border-color:${pc2.border};color:${pc2.text};background:${pc2.bg}">${actor.label}</span>`;
+  }).join('');
+  actorsDiv.innerHTML = `<div class="panel-section-title">Actors Involved</div>
+    <div class="actors-row">${actorTags}</div>`;
+  body.appendChild(actorsDiv);
+
+  // Show panel
+  document.getElementById('overlay').classList.add('open');
+  document.getElementById('detail-panel').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closePanel() {
+  document.getElementById('overlay').classList.remove('open');
+  document.getElementById('detail-panel').classList.remove('open');
+  document.body.style.overflow = '';
+  document.querySelectorAll('.stage-node').forEach(n => n.classList.remove('active'));
+  activeStageIdx = null;
+}
+
+function navigatePanel(dir) {
+  if (activeStageIdx === null) return;
+  const next = activeStageIdx + dir;
+  if (next >= 0 && next < CONFIG.stages.length) {
+    openPanel(next);
+    document.getElementById('detail-panel').scrollTop = 0;
+  }
+}
+
+// Keyboard navigation
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closePanel();
+  if (e.key === 'ArrowRight' && activeStageIdx !== null) navigatePanel(1);
+  if (e.key === 'ArrowLeft'  && activeStageIdx !== null) navigatePanel(-1);
+});
+
+// ── TECHNOLOGY ────────────────────────────────────────────────
+const techGrid = document.getElementById('tech-grid');
+const tech = CONFIG.technology;
+
+[tech.veripura, tech.twin].forEach(t => {
+  const featureKey = t === tech.veripura ? 'agents' : 'features';
+  const items = t[featureKey] || [];
+  techGrid.innerHTML += `
+    <div class="tech-card">
+      <div class="tech-card-name">${t.name}</div>
+      <div class="tech-card-tag">${t.tagline}</div>
+      <div class="tech-card-desc">${t.description}</div>
+      <div class="tech-features">
+        ${items.map(f => `
+          <div class="tech-feature">
+            <span class="tf-bullet">▸</span>
+            <span>${f}</span>
+          </div>`).join('')}
+      </div>
+    </div>`;
+});
+</script>
+</body>
+</html>
