@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Signal Logistics — Live Operations Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --ink:#0d1117;--paper:#f7f4ef;--gold:#c49a2a;
+  --green:#1a6b4a;--green-lt:#d4ede3;
+  --amber:#c49a2a;--amber-lt:#3a2e0a;
+  --red:#c03030;--red-lt:#3a0f0f;
+  --blue:#0f5a8a;--mid:#6a7888;
+  --border:#1e2a38;--surface:#131e2a;--surface2:#1a2535;
+  --header-h:60px;
+}
+html{scroll-behavior:smooth;}
+body{font-family:'Instrument Sans',sans-serif;background:#0a0f16;color:#c8c8b8;min-height:100vh;overflow-x:hidden;}
+.mono{font-family:'DM Mono',monospace;}
+.serif{font-family:'DM Serif Display',serif;}
+
+/* ── HEADER ── */
+header{
+  position:fixed;top:0;left:0;right:0;z-index:1000;
+  height:var(--header-h);
+  background:rgba(10,15,22,0.92);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 1.5rem;
+  backdrop-filter:blur(12px);
+}
+.hdr-brand{display:flex;align-items:center;gap:0.75rem;}
+.hdr-logo{
+  font-family:'DM Serif Display',serif;font-size:1rem;color:#fff;
+}
+.hdr-logo span{color:var(--gold);}
+.hdr-sep{width:1px;height:20px;background:var(--border);}
+.hdr-sub{font-family:'DM Mono',monospace;font-size:0.62rem;color:var(--mid);letter-spacing:0.08em;text-transform:uppercase;}
+.hdr-nav{display:flex;align-items:center;gap:0.25rem;}
+.hdr-btn{
+  font-family:'DM Mono',monospace;font-size:0.65rem;color:#7a8a9a;
+  background:none;border:1px solid transparent;padding:0.3rem 0.7rem;
+  border-radius:4px;cursor:pointer;letter-spacing:0.05em;text-transform:uppercase;
+  transition:all 0.15s;text-decoration:none;display:inline-block;
+}
+.hdr-btn:hover,.hdr-btn.active{color:#fff;border-color:var(--border);background:var(--surface);}
+.hdr-right{display:flex;align-items:center;gap:1rem;}
+.live-indicator{display:flex;align-items:center;gap:0.4rem;font-family:'DM Mono',monospace;font-size:0.62rem;color:var(--green);letter-spacing:0.06em;}
+.live-dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.4;transform:scale(0.75);}}
+.hdr-clock{font-family:'DM Mono',monospace;font-size:0.68rem;color:var(--mid);}
+
+/* ── SUMMARY STRIP ── */
+.summary-strip{
+  margin-top:var(--header-h);
+  display:grid;grid-template-columns:repeat(6,1fr);
+  gap:1px;background:var(--border);
+  border-bottom:1px solid var(--border);
+}
+.sum-card{
+  background:var(--ink);padding:0.85rem 1.25rem;
+  display:flex;flex-direction:column;gap:0.15rem;
+}
+.sum-label{font-family:'DM Mono',monospace;font-size:0.55rem;color:var(--mid);letter-spacing:0.08em;text-transform:uppercase;}
+.sum-value{font-family:'DM Serif Display',serif;font-size:1.6rem;color:#fff;line-height:1;}
+.sum-sub{font-family:'DM Mono',monospace;font-size:0.58rem;color:var(--mid);}
+.sum-value.green{color:#3dc882;}
+.sum-value.amber{color:#e8c040;}
+.sum-value.red{color:#e85555;}
+
+/* ── MAIN LAYOUT ── */
+.main-layout{display:grid;grid-template-rows:320px 1fr;height:calc(100vh - var(--header-h) - 72px);}
+
+/* ── MAP ── */
+#map{width:100%;height:100%;z-index:1;}
+.map-wrap{position:relative;overflow:hidden;border-bottom:1px solid var(--border);}
+
+/* Leaflet overrides for dark theme */
+.leaflet-container{background:#0a0f16 !important;}
+.leaflet-tile-pane{filter:brightness(0.75) saturate(0.6);}
+.leaflet-control-zoom a{background:var(--surface)!important;color:#c8c8b8!important;border-color:var(--border)!important;}
+.leaflet-control-attribution{background:rgba(10,15,22,0.7)!important;color:#4a5a6a!important;font-size:9px!important;}
+
+/* Custom markers */
+.ship-marker{
+  width:14px;height:14px;border-radius:50%;
+  border:2px solid rgba(255,255,255,0.3);
+  cursor:pointer;transition:transform 0.2s;
+}
+.ship-marker:hover{transform:scale(1.4);}
+.ship-marker.green{background:#3dc882;box-shadow:0 0 8px rgba(61,200,130,0.6);}
+.ship-marker.amber{background:#e8c040;box-shadow:0 0 8px rgba(232,192,64,0.6);}
+.ship-marker.red{background:#e85555;box-shadow:0 0 8px rgba(232,85,85,0.7);}
+.origin-marker{
+  width:10px;height:10px;border-radius:50%;
+  background:#2a3f52;border:1.5px solid #3a5f7a;
+}
+.leaflet-popup-content-wrapper{
+  background:var(--surface)!important;
+  border:1px solid var(--border)!important;
+  border-radius:8px!important;
+  color:#c8c8b8!important;
+  box-shadow:0 8px 32px rgba(0,0,0,0.5)!important;
+}
+.leaflet-popup-tip{background:var(--surface)!important;}
+.leaflet-popup-content{margin:10px 14px!important;font-family:'DM Mono',monospace;font-size:0.7rem;line-height:1.6;}
+.popup-id{color:var(--gold);font-size:0.65rem;letter-spacing:0.06em;margin-bottom:2px;}
+.popup-name{font-family:'Instrument Sans',sans-serif;font-weight:600;color:#fff;font-size:0.82rem;}
+.popup-link{color:#5ab8f5;cursor:pointer;font-size:0.65rem;margin-top:4px;display:block;}
+.popup-link:hover{color:#8ad4ff;}
+
+/* ── TABLE SECTION ── */
+.table-section{
+  overflow:hidden;
+  display:flex;flex-direction:column;
+  background:var(--ink);
+}
+.table-toolbar{
+  display:flex;align-items:center;gap:0.75rem;
+  padding:0.65rem 1.25rem;
+  border-bottom:1px solid var(--border);
+  background:var(--surface);
+  flex-shrink:0;
+  flex-wrap:wrap;
+}
+.toolbar-title{font-family:'DM Mono',monospace;font-size:0.68rem;color:#c8c8b8;letter-spacing:0.05em;text-transform:uppercase;margin-right:0.25rem;}
+.filter-btn{
+  font-family:'DM Mono',monospace;font-size:0.62rem;
+  padding:0.25rem 0.65rem;border-radius:20px;
+  border:1px solid var(--border);background:none;color:var(--mid);
+  cursor:pointer;transition:all 0.15s;letter-spacing:0.04em;
+}
+.filter-btn:hover,.filter-btn.active{background:var(--surface2);color:#c8c8b8;border-color:#3a5a6a;}
+.filter-btn.green.active{background:rgba(61,200,130,0.15);border-color:#3dc882;color:#3dc882;}
+.filter-btn.amber.active{background:rgba(232,192,64,0.15);border-color:#e8c040;color:#e8c040;}
+.filter-btn.red.active{background:rgba(232,85,85,0.15);border-color:#e85555;color:#e85555;}
+.search-input{
+  font-family:'DM Mono',monospace;font-size:0.65rem;
+  background:var(--surface2);border:1px solid var(--border);
+  color:#c8c8b8;border-radius:5px;padding:0.25rem 0.6rem;
+  outline:none;margin-left:auto;width:160px;
+}
+.search-input:focus{border-color:#3a5a6a;}
+.search-input::placeholder{color:#3a4a5a;}
+
+/* ── SHIPMENT TABLE ── */
+.table-scroll{overflow-y:auto;flex:1;}
+.table-scroll::-webkit-scrollbar{width:5px;}
+.table-scroll::-webkit-scrollbar-track{background:#0a0f16;}
+.table-scroll::-webkit-scrollbar-thumb{background:#2a3a4a;border-radius:3px;}
+
+table.ship-table{width:100%;border-collapse:collapse;}
+table.ship-table thead th{
+  background:var(--surface);
+  font-family:'DM Mono',monospace;font-size:0.58rem;
+  color:var(--mid);letter-spacing:0.06em;text-transform:uppercase;
+  padding:0.5rem 0.75rem;text-align:left;
+  border-bottom:1px solid var(--border);
+  position:sticky;top:0;z-index:2;
+  white-space:nowrap;cursor:pointer;
+  user-select:none;
+}
+table.ship-table thead th:hover{color:#c8c8b8;}
+table.ship-table thead th .sort-arrow{opacity:0.4;margin-left:3px;}
+table.ship-table thead th.sorted .sort-arrow{opacity:1;color:var(--gold);}
+
+table.ship-table tbody tr{
+  border-bottom:1px solid rgba(30,42,56,0.6);
+  cursor:pointer;transition:background 0.15s;
+}
+table.ship-table tbody tr:hover{background:var(--surface);}
+table.ship-table tbody tr.highlighted{background:rgba(15,90,138,0.15);}
+
+table.ship-table td{
+  padding:0.5rem 0.75rem;
+  font-size:0.75rem;color:#a8a8a0;
+  white-space:nowrap;vertical-align:middle;
+}
+td.td-id{font-family:'DM Mono',monospace;font-size:0.65rem;color:var(--gold);}
+td.td-name{font-weight:600;color:#e8e8d8;font-size:0.78rem;}
+td.td-mono{font-family:'DM Mono',monospace;font-size:0.65rem;}
+
+/* RAG status badge */
+.rag-badge{
+  display:inline-flex;align-items:center;gap:0.3rem;
+  font-family:'DM Mono',monospace;font-size:0.62rem;
+  padding:0.2rem 0.55rem;border-radius:20px;
+  border:1px solid;white-space:nowrap;
+}
+.rag-badge.green{background:rgba(61,200,130,0.12);border-color:rgba(61,200,130,0.4);color:#3dc882;}
+.rag-badge.amber{background:rgba(232,192,64,0.12);border-color:rgba(232,192,64,0.4);color:#e8c040;}
+.rag-badge.red{background:rgba(232,85,85,0.15);border-color:rgba(232,85,85,0.4);color:#e85555;}
+.rag-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0;}
+.rag-badge.green .rag-dot{background:#3dc882;}
+.rag-badge.amber .rag-dot{background:#e8c040;animation:pulse 1.5s infinite;}
+.rag-badge.red .rag-dot{background:#e85555;animation:pulse 1s infinite;}
+
+/* Stage progress bar */
+.stage-bar{display:flex;gap:2px;align-items:center;}
+.stage-pip{
+  width:14px;height:5px;border-radius:2px;
+  background:var(--border);transition:background 0.4s;
+}
+.stage-pip.done{background:#1a6b4a;}
+.stage-pip.active{background:var(--gold);}
+.stage-pip.blocked{background:#c03030;}
+
+/* VeriPura / TWIN indicators */
+.vp-twin{display:flex;gap:0.3rem;}
+.indicator{
+  font-family:'DM Mono',monospace;font-size:0.55rem;
+  padding:0.15rem 0.4rem;border-radius:3px;
+  border:1px solid;
+}
+.indicator.vp{background:rgba(26,107,74,0.15);border-color:rgba(26,107,74,0.5);color:#3dc882;}
+.indicator.tw{background:rgba(196,154,42,0.12);border-color:rgba(196,154,42,0.4);color:var(--gold);}
+.indicator.vp.alert{background:rgba(232,85,85,0.15);border-color:rgba(232,85,85,0.5);color:#e85555;}
+
+/* ── DRILLDOWN PANEL ── */
+.panel-overlay{
+  position:fixed;top:0;left:0;right:0;bottom:0;
+  background:rgba(5,10,16,0.6);z-index:2000;
+  opacity:0;pointer-events:none;transition:opacity 0.3s;
+  backdrop-filter:blur(3px);
+}
+.panel-overlay.open{opacity:1;pointer-events:all;}
+.drilldown{
+  position:fixed;top:0;right:0;bottom:0;width:520px;
+  background:#0e1620;
+  border-left:1px solid var(--border);
+  z-index:2001;
+  transform:translateX(100%);
+  transition:transform 0.35s cubic-bezier(0.4,0,0.2,1);
+  display:flex;flex-direction:column;
+  overflow:hidden;
+}
+.drilldown.open{transform:translateX(0);}
+.dd-header{
+  padding:1.25rem 1.5rem 1rem;
+  border-bottom:1px solid var(--border);
+  background:#131e2a;
+  flex-shrink:0;
+}
+.dd-close{
+  float:right;width:28px;height:28px;border-radius:50%;
+  border:1px solid var(--border);background:none;
+  color:var(--mid);cursor:pointer;font-size:0.9rem;
+  display:flex;align-items:center;justify-content:center;
+  transition:all 0.15s;
+}
+.dd-close:hover{background:var(--surface2);color:#fff;}
+.dd-id{font-family:'DM Mono',monospace;font-size:0.65rem;color:var(--gold);letter-spacing:0.08em;margin-bottom:0.25rem;}
+.dd-title{font-family:'DM Serif Display',serif;font-size:1.25rem;color:#fff;font-weight:400;margin-bottom:0.25rem;}
+.dd-meta{display:flex;gap:1rem;flex-wrap:wrap;margin-top:0.5rem;}
+.dd-meta-item{font-family:'DM Mono',monospace;font-size:0.62rem;color:var(--mid);}
+.dd-meta-val{color:#a8a898;}
+.dd-tabs{
+  display:flex;border-bottom:1px solid var(--border);
+  background:var(--surface);flex-shrink:0;
+}
+.dd-tab{
+  font-family:'DM Mono',monospace;font-size:0.65rem;
+  padding:0.6rem 1rem;cursor:pointer;
+  color:var(--mid);border-bottom:2px solid transparent;
+  letter-spacing:0.05em;text-transform:uppercase;
+  transition:all 0.15s;
+}
+.dd-tab:hover{color:#c8c8b8;}
+.dd-tab.active{color:#fff;border-bottom-color:var(--gold);}
+.dd-body{overflow-y:auto;flex:1;padding:1.25rem 1.5rem;}
+.dd-body::-webkit-scrollbar{width:4px;}
+.dd-body::-webkit-scrollbar-thumb{background:#2a3a4a;border-radius:2px;}
+
+/* Timeline */
+.timeline{display:flex;flex-direction:column;gap:0;}
+.tl-item{display:flex;gap:0.75rem;position:relative;}
+.tl-item::before{
+  content:'';position:absolute;left:11px;top:24px;bottom:-4px;
+  width:1px;background:var(--border);
+}
+.tl-item:last-child::before{display:none;}
+.tl-icon{
+  width:24px;height:24px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:0.6rem;font-weight:600;flex-shrink:0;
+  margin-top:2px;border:1.5px solid;
+  font-family:'DM Mono',monospace;
+}
+.tl-icon.signal{background:rgba(26,58,92,0.5);border-color:#2a5a8a;color:#5ab8f5;}
+.tl-icon.vp    {background:rgba(26,107,74,0.3);border-color:#1a6b4a;color:#3dc882;}
+.tl-icon.twin  {background:rgba(122,74,0,0.3);border-color:#8a6010;color:var(--gold);}
+.tl-icon.apha  {background:rgba(100,40,40,0.3);border-color:#8a4040;color:#e85555;}
+.tl-icon.alert {background:rgba(180,50,50,0.4);border-color:#c03030;color:#e85555;}
+.tl-icon.ok    {background:rgba(26,107,74,0.5);border-color:#3dc882;color:#3dc882;}
+.tl-content{padding-bottom:1rem;flex:1;}
+.tl-time{font-family:'DM Mono',monospace;font-size:0.58rem;color:#4a5a6a;margin-bottom:0.2rem;}
+.tl-party{font-family:'DM Mono',monospace;font-size:0.6rem;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:0.2rem;}
+.tl-party.signal{color:#5ab8f5;}
+.tl-party.vp    {color:#3dc882;}
+.tl-party.twin  {color:var(--gold);}
+.tl-party.apha  {color:#e85555;}
+.tl-text{font-size:0.78rem;color:#a8a898;line-height:1.55;}
+.tl-doc{
+  display:inline-block;margin-top:0.3rem;
+  font-family:'DM Mono',monospace;font-size:0.6rem;
+  padding:0.15rem 0.5rem;border-radius:3px;
+  background:rgba(30,42,56,0.8);border:1px solid var(--border);
+  color:#6a8a8a;
+}
+
+/* Stage progress in drilldown */
+.dd-stages{display:flex;flex-direction:column;gap:0.5rem;}
+.dd-stage-row{
+  display:flex;align-items:center;gap:0.75rem;
+  padding:0.6rem 0.75rem;border-radius:6px;
+  border:1px solid var(--border);background:var(--surface);
+  transition:background 0.2s;
+}
+.dd-stage-row.done  {border-color:rgba(26,107,74,0.4);background:rgba(26,107,74,0.08);}
+.dd-stage-row.active{border-color:rgba(196,154,42,0.5);background:rgba(196,154,42,0.08);}
+.dd-stage-row.blocked{border-color:rgba(192,48,48,0.5);background:rgba(192,48,48,0.08);}
+.dd-stage-num{font-family:'DM Mono',monospace;font-size:0.6rem;color:var(--mid);width:20px;flex-shrink:0;}
+.dd-stage-label{font-size:0.78rem;color:#a8a898;flex:1;}
+.dd-stage-row.done   .dd-stage-label{color:#c8c8b8;}
+.dd-stage-row.active .dd-stage-label{color:#fff;font-weight:500;}
+.dd-stage-status{font-family:'DM Mono',monospace;font-size:0.6rem;}
+.dd-stage-row.done    .dd-stage-status{color:#3dc882;}
+.dd-stage-row.active  .dd-stage-status{color:#e8c040;}
+.dd-stage-row.blocked .dd-stage-status{color:#e85555;}
+.dd-stage-row.pending .dd-stage-status{color:#4a5a6a;}
+
+/* Animations */
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+@keyframes flashRow{0%{background:rgba(232,192,64,0.2);}100%{background:transparent;}}
+tr.flash-amber{animation:flashRow 1.5s ease;}
+@keyframes flashRed{0%{background:rgba(232,85,85,0.25);}100%{background:transparent;}}
+tr.flash-red{animation:flashRed 1.5s ease;}
+</style>
+</head>
+<body>
+
+<!-- ── HEADER ── -->
+<header>
+  <div class="hdr-brand">
+    <div class="hdr-logo">Signal × Veri<span>Pura</span> × TWIN</div>
+    <div class="hdr-sep"></div>
+    <div class="hdr-sub">Live Operations Dashboard</div>
+  </div>
+  <nav class="hdr-nav">
+    <a class="hdr-btn" href="index.html">← Use Case</a>
+    <a class="hdr-btn active" href="#">Dashboard</a>
+  </nav>
+  <div class="hdr-right">
+    <div class="live-indicator"><div class="live-dot"></div>LIVE</div>
+    <div class="hdr-clock mono" id="clock">--:--:--</div>
+  </div>
+</header>
+
+<!-- ── SUMMARY STRIP ── -->
+<div class="summary-strip">
+  <div class="sum-card"><div class="sum-label">Active Shipments</div><div class="sum-value" id="s-total">0</div><div class="sum-sub">across 7 origins</div></div>
+  <div class="sum-card"><div class="sum-label">On Track</div><div class="sum-value green" id="s-green">0</div><div class="sum-sub">all stages clear</div></div>
+  <div class="sum-card"><div class="sum-label">Attention Required</div><div class="sum-value amber" id="s-amber">0</div><div class="sum-sub">action pending</div></div>
+  <div class="sum-card"><div class="sum-label">Critical / Held</div><div class="sum-value red" id="s-red">0</div><div class="sum-sub">intervention needed</div></div>
+  <div class="sum-card"><div class="sum-label">VeriPura Actions</div><div class="sum-value" id="s-vp" style="color:var(--gold)">0</div><div class="sum-sub">last 24 hours</div></div>
+  <div class="sum-card"><div class="sum-label">TWIN Events</div><div class="sum-value" id="s-tw" style="color:var(--gold)">0</div><div class="sum-sub">notarised today</div></div>
+</div>
+
+<!-- ── MAIN LAYOUT ── -->
+<div class="main-layout">
+  <div class="map-wrap"><div id="map"></div></div>
+  <div class="table-section">
+    <div class="table-toolbar">
+      <span class="toolbar-title mono">Shipments</span>
+      <button class="filter-btn active" data-filter="all">All</button>
+      <button class="filter-btn green" data-filter="green">● On Track</button>
+      <button class="filter-btn amber" data-filter="amber">● Attention</button>
+      <button class="filter-btn red" data-filter="red">● Critical</button>
+      <span style="width:1px;height:16px;background:var(--border);margin:0 0.25rem;"></span>
+      <button class="filter-btn" data-filter="brazil">Brazil</button>
+      <button class="filter-btn" data-filter="india">India</button>
+      <button class="filter-btn" data-filter="indonesia">Indonesia</button>
+      <button class="filter-btn" data-filter="thailand">Thailand</button>
+      <button class="filter-btn" data-filter="argentina">Argentina</button>
+      <button class="filter-btn" data-filter="southafrica">S. Africa</button>
+      <button class="filter-btn" data-filter="morocco">Morocco</button>
+      <input class="search-input" id="search-input" placeholder="Search ID, commodity…" oninput="applyFilters()">
+    </div>
+    <div class="table-scroll">
+      <table class="ship-table">
+        <thead>
+          <tr>
+            <th onclick="sortTable('id')">ID <span class="sort-arrow">↕</span></th>
+            <th onclick="sortTable('commodity')">Commodity <span class="sort-arrow">↕</span></th>
+            <th onclick="sortTable('origin')">Origin <span class="sort-arrow">↕</span></th>
+            <th onclick="sortTable('vessel')">Vessel / ETA <span class="sort-arrow">↕</span></th>
+            <th onclick="sortTable('stage')">Stage <span class="sort-arrow">↕</span></th>
+            <th>Progress</th>
+            <th onclick="sortTable('rag')">Status <span class="sort-arrow">↕</span></th>
+            <th>VP / TWIN</th>
+          </tr>
+        </thead>
+        <tbody id="ship-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ── DRILLDOWN PANEL ── -->
+<div class="panel-overlay" id="panel-overlay" onclick="closePanel()"></div>
+<div class="drilldown" id="drilldown">
+  <div class="dd-header">
+    <button class="dd-close" onclick="closePanel()">✕</button>
+    <div class="dd-id" id="dd-id"></div>
+    <div class="dd-title" id="dd-title"></div>
+    <div class="dd-meta" id="dd-meta"></div>
+  </div>
+  <div class="dd-tabs">
+    <div class="dd-tab active" onclick="switchTab('timeline',this)">Audit Timeline</div>
+    <div class="dd-tab" onclick="switchTab('stages',this)">Stage Detail</div>
+  </div>
+  <div class="dd-body" id="dd-body"></div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════
+// DATA — 38 shipments across 7 origins
+// ══════════════════════════════════════════════════════
+
+const ORIGINS = {
+  brazil:      { label:"Brazil",       port:"Santos",        lat:-23.9,  lng:-46.3,  dest:[51.44,-0.37], color:"#c49a2a" },
+  india:       { label:"India",        port:"Nhava Sheva",   lat:18.95,  lng:72.95,  dest:[53.48,-2.24], color:"#e87020" },
+  indonesia:   { label:"Indonesia",    port:"Tanjung Priok", lat:-6.1,   lng:106.88, dest:[51.44,-0.37], color:"#8a4ab8" },
+  thailand:    { label:"Thailand",     port:"Laem Chabang",  lat:13.08,  lng:100.9,  dest:[51.44,-0.37], color:"#2080c0" },
+  argentina:   { label:"Argentina",    port:"Buenos Aires",  lat:-34.6,  lng:-58.4,  dest:[51.44,-0.37], color:"#c03060" },
+  southafrica: { label:"South Africa", port:"Durban",        lat:-29.85, lng:31.05,  dest:[51.44,-0.37], color:"#20a060" },
+  morocco:     { label:"Morocco",      port:"Casablanca",    lat:33.6,   lng:-7.6,   dest:[51.44,-0.37], color:"#d04020" },
+};
+
+const COMMODITIES = {
+  brazil:      ["Frozen Boneless Beef","Frozen Beef Cuts","Frozen Chicken Portions","Soya Protein Concentrate"],
+  india:       ["Basmati Rice","Frozen Shrimp","Spice Mix (Turmeric/Cumin)","Fresh Ginger (Chilled)","Freeze-Dried Mango"],
+  indonesia:   ["Palm Oil (Refined)","Frozen Tuna Loins","Dried Nutmeg & Mace","Frozen Vannamei Shrimp","Coconut Cream"],
+  thailand:    ["Frozen Cooked Shrimp","Jasmine Rice","Canned Tuna","Frozen Tilapia Fillets","Bird Eye Chilli (Dried)"],
+  argentina:   ["Frozen Soya Bean Meal","Frozen Beef Trimmings","Chilled Lemons","Frozen Squid (IQF)"],
+  southafrica: ["Fresh Citrus (Chilled)","Frozen Hake Fillets","Dried Fruit Mix","Canned Pilchards","Rooibos Tea (Bulk)"],
+  morocco:     ["Canned Sardines","Fresh Tomatoes (Chilled)","Frozen Octopus","Preserved Lemons","Argan Oil (Bulk)"],
+};
+
+const VESSELS = [
+  "MSC AURORA","CMA CGM TITUS","MAERSK ESSEX","HAPAG BERLIN","COSCO SHIPPING PISCES",
+  "EVERGREEN EMERALD","ONE HARMONY","YANG MING WITNESS","PIL ASIA","ZIM ROTTERDAM",
+  "MSC DIANA","CMA CGM MOZART","MAERSK CAPE TOWN","HAPAG TOKYO","COSCO DHAKA",
+];
+
+const STAGE_NAMES = [
+  "Pre-Order","Product Check","Commercial Docs","Vet Inspection",
+  "Loading","Port of Exit","Deep-Sea Transit","Port of Entry","Customs","Goods-In"
+];
+
+// Generate 38 shipments
+const SHIPS = [];
+let idCounter = 1;
+const originKeys = Object.keys(ORIGINS);
+
+originKeys.forEach(origin => {
+  const comms = COMMODITIES[origin];
+  comms.forEach((comm, ci) => {
+    const stage    = Math.floor(Math.random() * 10) + 1;
+    const ragBase  = Math.random();
+    const rag      = ragBase < 0.58 ? "green" : ragBase < 0.82 ? "amber" : "red";
+    const etaDays  = Math.floor(Math.random() * 28) - 5;
+    const etaDate  = new Date(Date.now() + etaDays * 86400000);
+    const etaStr   = etaDate.toLocaleDateString('en-GB',{day:'2-digit',month:'short'});
+    const vessel   = VESSELS[(idCounter * 3 + ci) % VESSELS.length];
+    const weight   = (Math.floor(Math.random() * 180) + 20) * 100;
+    const vpAction = rag === "red" ? "ALERT" : rag === "amber" ? "CHECKING" : "VALIDATED";
+    const twinEvents = Math.floor(stage * 1.5 + Math.random() * 3);
+
+    SHIPS.push({
+      id:         `SG-${2026}-${String(idCounter).padStart(4,'0')}`,
+      origin,
+      commodity:  comm,
+      vessel,
+      etaStr,
+      etaDays,
+      stage,
+      rag,
+      weight:     `${(weight/1000).toFixed(1)}t`,
+      vpAction,
+      twinEvents,
+      alert:      rag === "red" ? randomAlert(origin, comm, stage) : null,
+      lat:        ORIGINS[origin].lat + (Math.random()-0.5)*2,
+      lng:        ORIGINS[origin].lng + (Math.random()-0.5)*2,
+    });
+    idCounter++;
+  });
+});
+
+// Fill to 38
+while (SHIPS.length < 38) {
+  const origin  = originKeys[SHIPS.length % originKeys.length];
+  const comms   = COMMODITIES[origin];
+  const comm    = comms[Math.floor(Math.random() * comms.length)];
+  const stage   = Math.floor(Math.random() * 10) + 1;
+  const ragBase = Math.random();
+  const rag     = ragBase < 0.6 ? "green" : ragBase < 0.82 ? "amber" : "red";
+  const etaDays = Math.floor(Math.random() * 28) - 5;
+  const etaDate = new Date(Date.now() + etaDays * 86400000);
+  const etaStr  = etaDate.toLocaleDateString('en-GB',{day:'2-digit',month:'short'});
+  SHIPS.push({
+    id: `SG-2026-${String(idCounter).padStart(4,'0')}`,
+    origin, commodity: comm,
+    vessel: VESSELS[idCounter % VESSELS.length],
+    etaStr, etaDays, stage, rag, weight: `${(Math.random()*15+2).toFixed(1)}t`,
+    vpAction: rag==="red"?"ALERT":rag==="amber"?"CHECKING":"VALIDATED",
+    twinEvents: Math.floor(stage*1.5+Math.random()*3),
+    alert: rag==="red" ? randomAlert(origin,comm,stage) : null,
+    lat: ORIGINS[origin].lat+(Math.random()-0.5)*2,
+    lng: ORIGINS[origin].lng+(Math.random()-0.5)*2,
+  });
+  idCounter++;
+}
+
+function randomAlert(origin, comm, stage) {
+  const alerts = [
+    "EHC template mismatch — APHA template updated Feb 2026",
+    "Residue test results pending — shipment on hold",
+    "IPAFFS pre-notification commodity code error",
+    "Cold chain exceedance flagged at port of discharge",
+    "OV credentials could not be verified — MAPA registry timeout",
+    "HS code inconsistency between invoice and export declaration",
+    "Port Health Authority physical inspection requested",
+    "Import declaration rejected — tariff classification disputed",
+    "SISBOV segregation document missing",
+    "Vessel ETA deviation — IPAFFS notification requires update",
+  ];
+  return alerts[Math.floor(Math.random() * alerts.length)];
+}
+
+// Generate timeline events for a shipment
+function generateTimeline(ship) {
+  const events = [];
+  const stageNames = STAGE_NAMES;
+  const dayOffset  = -18 + ship.stage * 1.5;
+
+  for (let s = 1; s <= ship.stage; s++) {
+    const d = new Date(Date.now() + (dayOffset - (ship.stage - s) * 1.8) * 86400000);
+    const dateStr = d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'2-digit'}) + ' ' +
+                    d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+    // Signal action
+    events.push({ party:'signal', icon:'S', time:dateStr, action:`Stage ${s} initiated`, detail:`${stageNames[s-1]} — Signal coordinating with ${ORIGINS[ship.origin].label} supplier`, doc: s===1?'Purchase Order':s===5?'CMR Waybill':s===8?'IPAFFS Notification':null });
+    // VeriPura action
+    const vpOk = !(s===4 && ship.rag==='red') && !(s===8 && ship.rag==='red' && ship.alert && ship.alert.includes('cold chain'));
+    events.push({ party:'vp', icon:'VP', time:dateStr, action:vpOk?'Compliance check passed':'Compliance issue detected', detail:vpOk?`VeriPura validated all documents at Stage ${s} against live regulatory databases`:`VeriPura flagged: ${ship.alert || 'documentation discrepancy'}`, isAlert:!vpOk, doc:s===3?'Commercial Invoice':s===4?'Export Health Certificate':s===6?'Export Declaration':null });
+    // TWIN notarisation
+    events.push({ party:'twin', icon:'TW', time:dateStr, action:'Event notarised on IOTA', detail:`TWIN anchored Stage ${s} compliance record — tamper-evident, permanently accessible`, doc:'TWIN Verifiable Credential' });
+    // Special drama events
+    if (s===4 && ship.rag==='red' && ship.alert) {
+      events.push({ party:'apha', icon:'⚠', time:dateStr, isAlert:true, action:'APHA Flag: ' + ship.alert, detail:'Consignment placed on documentary hold. VeriPura attempting automated resolution via MAPA registry.', doc:null });
+    }
+    if (s===8 && ship.rag==='amber') {
+      events.push({ party:'vp', icon:'VP', time:dateStr, action:'IPAFFS pre-notification auto-updated', detail:'Vessel ETA revised by carrier. VeriPura detected deviation and filed updated IPAFFS notification automatically.', doc:'IPAFFS Update' });
+    }
+  }
+  return events.reverse();
+}
+
+// ══════════════════════════════════════════════════════
+// MAP INIT
+// ══════════════════════════════════════════════════════
+const map = L.map('map', {
+  center:[20, 20], zoom:2,
+  zoomControl:true,
+  attributionControl:true,
+  scrollWheelZoom:true,
+});
+
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{
+  attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/">CARTO</a>',
+  subdomains:'abcd', maxZoom:19,
+}).addTo(map);
+
+// UK destination marker
+const ukIcon = L.divIcon({ className:'', html:'<div style="width:12px;height:12px;border-radius:50%;background:#fff;border:2px solid #c49a2a;box-shadow:0 0 10px rgba(196,154,42,0.8);"></div>', iconSize:[12,12], iconAnchor:[6,6] });
+L.marker([51.44,-0.37], {icon:ukIcon}).addTo(map).bindTooltip('Tilbury / Felixstowe',{permanent:false,className:'leaflet-tooltip'});
+
+// Origin markers (static)
+Object.entries(ORIGINS).forEach(([key,org]) => {
+  const icon = L.divIcon({ className:'', html:`<div class="origin-marker"></div>`, iconSize:[10,10], iconAnchor:[5,5] });
+  L.marker([org.lat, org.lng], {icon}).addTo(map)
+   .bindTooltip(`${org.label} — ${org.port}`,{permanent:false});
+});
+
+// Shipment markers
+const shipMarkers = {};
+SHIPS.forEach(ship => {
+  const icon = L.divIcon({
+    className:'',
+    html:`<div class="ship-marker ${ship.rag}" id="marker-${ship.id}"></div>`,
+    iconSize:[14,14], iconAnchor:[7,7]
+  });
+  const marker = L.marker([ship.lat, ship.lng], {icon}).addTo(map);
+  marker.bindPopup(`
+    <div class="popup-id">${ship.id}</div>
+    <div class="popup-name">${ship.commodity}</div>
+    <div style="color:var(--mid);font-size:0.65rem;margin-top:2px;">${ORIGINS[ship.origin].label} → UK · Stage ${ship.stage}/10</div>
+    <span class="popup-link" onclick="openPanel('${ship.id}');this.closest('.leaflet-popup').querySelector('.leaflet-popup-close-button').click()">View audit trail →</span>
+  `);
+  // Route line (faint)
+  const org  = ORIGINS[ship.origin];
+  const dest = org.dest;
+  const lineColor = ship.rag==='green'?'rgba(61,200,130,0.25)':ship.rag==='amber'?'rgba(232,192,64,0.25)':'rgba(232,85,85,0.3)';
+  L.polyline([[ship.lat,ship.lng],[dest[0],dest[1]]], {color:lineColor,weight:1,dashArray:'4 6'}).addTo(map);
+  shipMarkers[ship.id] = marker;
+});
+
+// ══════════════════════════════════════════════════════
+// TABLE RENDER
+// ══════════════════════════════════════════════════════
+let activeFilter = 'all';
+let sortKey = null, sortDir = 1;
+let activeShipId = null;
+
+function renderTable() {
+  const tbody = document.getElementById('ship-tbody');
+  const search = document.getElementById('search-input').value.toLowerCase();
+  let data = SHIPS.filter(s => {
+    if (activeFilter === 'all') return true;
+    if (['green','amber','red'].includes(activeFilter)) return s.rag === activeFilter;
+    return s.origin === activeFilter;
+  }).filter(s => {
+    if (!search) return true;
+    return s.id.toLowerCase().includes(search) || s.commodity.toLowerCase().includes(search) || ORIGINS[s.origin].label.toLowerCase().includes(search);
+  });
+  if (sortKey) {
+    data = [...data].sort((a,b) => {
+      let av = a[sortKey], bv = b[sortKey];
+      if (sortKey==='rag') { const o={green:0,amber:1,red:2}; av=o[av]||0; bv=o[bv]||0; }
+      return (av > bv ? 1 : av < bv ? -1 : 0) * sortDir;
+    });
+  }
+
+  tbody.innerHTML = data.map(ship => {
+    const org  = ORIGINS[ship.origin];
+    const pips = Array(10).fill(0).map((_,i) => {
+      let cls = i < ship.stage-1 ? 'done' : i===ship.stage-1 ? (ship.rag==='red'?'blocked':'active') : '';
+      return `<div class="stage-pip ${cls}"></div>`;
+    }).join('');
+    const ragLabel = ship.rag==='green'?'On Track':ship.rag==='amber'?'Attention':'Critical';
+    const vpCls    = ship.vpAction==='ALERT'?'vp alert':'vp';
+    const etaColor = ship.etaDays < 0 ? '#e85555' : ship.etaDays < 3 ? '#e8c040' : '';
+    return `<tr onclick="openPanel('${ship.id}')" id="row-${ship.id}" class="${activeShipId===ship.id?'highlighted':''}">
+      <td class="td-id">${ship.id}</td>
+      <td class="td-name">${ship.commodity}</td>
+      <td><span style="color:${org.color};font-size:0.7rem;">●</span> ${org.label}</td>
+      <td class="td-mono"><div>${ship.vessel}</div><div style="font-size:0.6rem;color:${etaColor||'var(--mid)'}">${ship.etaDays<0?'Overdue':'ETA'} ${ship.etaStr}</div></td>
+      <td class="td-mono"><div>S${ship.stage}/10</div><div style="font-size:0.6rem;color:var(--mid)">${STAGE_NAMES[ship.stage-1]}</div></td>
+      <td><div class="stage-bar">${pips}</div></td>
+      <td><span class="rag-badge ${ship.rag}"><span class="rag-dot"></span>${ragLabel}</span></td>
+      <td><div class="vp-twin"><span class="indicator ${vpCls}">${ship.vpAction}</span><span class="indicator tw">TWIN×${ship.twinEvents}</span></div></td>
+    </tr>`;
+  }).join('');
+
+  updateSummary();
+}
+
+function applyFilters() { renderTable(); }
+
+function sortTable(key) {
+  if (sortKey===key) sortDir*=-1; else { sortKey=key; sortDir=1; }
+  document.querySelectorAll('thead th').forEach(th=>th.classList.remove('sorted'));
+  const idx = ['id','commodity','origin','vessel','stage',null,'rag',null].indexOf(key);
+  if (idx>=0) document.querySelectorAll('thead th')[idx]?.classList.add('sorted');
+  renderTable();
+}
+
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.filter-btn').forEach(b=>{
+      b.classList.remove('active','green','amber','red');
+    });
+    btn.classList.add('active');
+    const f = btn.dataset.filter;
+    if (['green','amber','red'].includes(f)) btn.classList.add(f);
+    activeFilter = f;
+    renderTable();
+  });
+});
+
+function updateSummary() {
+  document.getElementById('s-total').textContent = SHIPS.length;
+  document.getElementById('s-green').textContent = SHIPS.filter(s=>s.rag==='green').length;
+  document.getElementById('s-amber').textContent = SHIPS.filter(s=>s.rag==='amber').length;
+  document.getElementById('s-red').textContent   = SHIPS.filter(s=>s.rag==='red').length;
+  document.getElementById('s-vp').textContent    = SHIPS.reduce((a,s)=>a+s.twinEvents,0);
+  document.getElementById('s-tw').textContent    = SHIPS.reduce((a,s)=>a+s.twinEvents+1,0);
+}
+
+// ══════════════════════════════════════════════════════
+// DRILLDOWN PANEL
+// ══════════════════════════════════════════════════════
+let currentTab = 'timeline';
+
+function openPanel(id) {
+  const ship = SHIPS.find(s=>s.id===id);
+  if (!ship) return;
+  activeShipId = id;
+  renderTable();
+
+  const org = ORIGINS[ship.origin];
+  document.getElementById('dd-id').textContent    = ship.id;
+  document.getElementById('dd-title').textContent = ship.commodity;
+  document.getElementById('dd-meta').innerHTML = `
+    <div class="dd-meta-item">Origin <span class="dd-meta-val">${org.label} — ${org.port}</span></div>
+    <div class="dd-meta-item">Vessel <span class="dd-meta-val">${ship.vessel}</span></div>
+    <div class="dd-meta-item">Weight <span class="dd-meta-val">${ship.weight}</span></div>
+    <div class="dd-meta-item">ETA <span class="dd-meta-val">${ship.etaStr}</span></div>
+    <div class="dd-meta-item">Stage <span class="dd-meta-val">${ship.stage}/10 — ${STAGE_NAMES[ship.stage-1]}</span></div>
+  `;
+
+  if (ship.alert) {
+    document.getElementById('dd-meta').innerHTML += `<div style="margin-top:0.5rem;font-family:DM Mono,monospace;font-size:0.65rem;color:#e85555;border:1px solid rgba(232,85,85,0.3);padding:0.3rem 0.6rem;border-radius:4px;background:rgba(232,85,85,0.08);">⚠ ${ship.alert}</div>`;
+  }
+
+  renderDrillTab(ship, currentTab);
+  document.getElementById('panel-overlay').classList.add('open');
+  document.getElementById('drilldown').classList.add('open');
+
+  // Pan map to shipment
+  if (shipMarkers[id]) map.panTo([ship.lat, ship.lng], {animate:true});
+}
+
+function closePanel() {
+  document.getElementById('panel-overlay').classList.remove('open');
+  document.getElementById('drilldown').classList.remove('open');
+  activeShipId = null;
+  renderTable();
+}
+
+function switchTab(tab, el) {
+  currentTab = tab;
+  document.querySelectorAll('.dd-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  const ship = SHIPS.find(s=>s.id===activeShipId);
+  if (ship) renderDrillTab(ship, tab);
+}
+
+function renderDrillTab(ship, tab) {
+  const body = document.getElementById('dd-body');
+  if (tab==='timeline') {
+    const events = generateTimeline(ship);
+    body.innerHTML = `<div class="timeline">${events.map(e=>`
+      <div class="tl-item">
+        <div class="tl-icon ${e.party}">${e.icon}</div>
+        <div class="tl-content">
+          <div class="tl-time">${e.time}</div>
+          <div class="tl-party ${e.party}">${e.party==='signal'?'Signal':e.party==='vp'?'VeriPura':e.party==='twin'?'TWIN/IOTA':'APHA'}</div>
+          <div class="tl-text${e.isAlert?' ' :' '}" style="${e.isAlert?'color:#e85555;':''}">${e.action}</div>
+          <div class="tl-text" style="color:var(--mid);font-size:0.72rem;margin-top:2px;">${e.detail}</div>
+          ${e.doc?`<span class="tl-doc">${e.doc}</span>`:''}
+        </div>
+      </div>`).join('')}</div>`;
+  } else {
+    body.innerHTML = `<div class="dd-stages">${STAGE_NAMES.map((name,i)=>{
+      const s = i+1;
+      let cls = s < ship.stage ? 'done' : s===ship.stage ? (ship.rag==='red'?'blocked':'active') : 'pending';
+      const status = cls==='done'?'✓ Complete':cls==='active'?(ship.rag==='red'?'⚠ Blocked':'◎ In progress'):cls==='blocked'?'⚠ Blocked':'— Pending';
+      return `<div class="dd-stage-row ${cls}">
+        <div class="dd-stage-num">${s}</div>
+        <div class="dd-stage-label">${name}</div>
+        <div class="dd-stage-status">${status}</div>
+      </div>`;
+    }).join('')}</div>`;
+  }
+}
+
+// ══════════════════════════════════════════════════════
+// LIVE SIMULATION — updates every 8 seconds
+// ══════════════════════════════════════════════════════
+let simVpActions = 0, simTwinEvents = 0;
+
+function runSimulation() {
+  // Pick 2-4 random shipments to update
+  const count = 2 + Math.floor(Math.random() * 3);
+  const indices = [];
+  while (indices.length < count) {
+    const idx = Math.floor(Math.random() * SHIPS.length);
+    if (!indices.includes(idx)) indices.push(idx);
+  }
+
+  indices.forEach(idx => {
+    const ship = SHIPS[idx];
+    const oldRag = ship.rag;
+    const roll   = Math.random();
+
+    // Simulate status shifts
+    if (ship.rag === 'red' && roll < 0.35) {
+      // Red resolves to amber
+      ship.rag = 'amber';
+      ship.alert = null;
+      ship.vpAction = 'CHECKING';
+      ship.twinEvents++;
+      simVpActions++;
+    } else if (ship.rag === 'amber' && roll < 0.45) {
+      // Amber resolves to green
+      ship.rag = 'green';
+      ship.vpAction = 'VALIDATED';
+      ship.twinEvents++;
+      simVpActions++;
+    } else if (ship.rag === 'green' && roll < 0.12) {
+      // Green occasionally gets a new issue
+      ship.rag = 'amber';
+      ship.vpAction = 'CHECKING';
+    } else if (ship.rag === 'amber' && roll > 0.75) {
+      // Amber occasionally escalates
+      ship.rag = 'red';
+      ship.vpAction = 'ALERT';
+      ship.alert = randomAlert(ship.origin, ship.commodity, ship.stage);
+    }
+
+    // Occasionally advance stage
+    if (roll < 0.2 && ship.stage < 10 && ship.rag !== 'red') {
+      ship.stage = Math.min(10, ship.stage + 1);
+      ship.twinEvents++;
+      simTwinEvents++;
+    }
+
+    // Update map marker
+    const markerEl = document.getElementById(`marker-${ship.id}`);
+    if (markerEl) {
+      markerEl.className = `ship-marker ${ship.rag}`;
+    }
+
+    // Flash table row
+    const row = document.getElementById(`row-${ship.id}`);
+    if (row && oldRag !== ship.rag) {
+      row.classList.remove('flash-amber','flash-red');
+      void row.offsetWidth;
+      row.classList.add(ship.rag === 'red' ? 'flash-red' : 'flash-amber');
+      setTimeout(() => row.classList.remove('flash-amber','flash-red'), 1600);
+    }
+  });
+
+  // Update summary counters with animation
+  document.getElementById('s-vp').textContent = SHIPS.reduce((a,s)=>a+s.twinEvents,0);
+  document.getElementById('s-tw').textContent = SHIPS.reduce((a,s)=>a+s.twinEvents+1,0);
+
+  renderTable();
+
+  // If drilldown is open, refresh it
+  if (activeShipId) {
+    const ship = SHIPS.find(s=>s.id===activeShipId);
+    if (ship) renderDrillTab(ship, currentTab);
+  }
+}
+
+// ══════════════════════════════════════════════════════
+// CLOCK
+// ══════════════════════════════════════════════════════
+function updateClock() {
+  document.getElementById('clock').textContent = new Date().toLocaleTimeString('en-GB');
+}
+
+// ── INIT ──
+renderTable();
+updateClock();
+setInterval(updateClock, 1000);
+setInterval(runSimulation, 8000);
+
+// Escape key closes panel
+document.addEventListener('keydown', e => { if (e.key==='Escape') closePanel(); });
+</script>
+</body>
+</html>
