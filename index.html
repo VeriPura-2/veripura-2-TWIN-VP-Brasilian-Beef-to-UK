@@ -181,8 +181,8 @@ const CONFIG = {
     },
     {
       id: "s7", phase: "transit", number: 7,
-      label: "Sea Crossing / Ferry",
-      sublabel: "RoRo or deep-sea transit monitoring",
+      label: "Deep-Sea Transit",
+      sublabel: "Deep-sea container vessel monitoring",
       actors: ["ports", "haulier"],
       docs: [
         { name: "Vessel Manifest", source: "Shipping Line / Ferry Operator", required: true },
@@ -1527,8 +1527,12 @@ footer {
 .db-pipe-num { font-family:'DM Mono',monospace; font-size:0.58rem; color:#8a8a7a; margin-bottom:0.25rem; }
 .db-pipe-label { font-size:0.62rem; font-weight:500; line-height:1.3; color:#c8c8b8; }
 .db-pipe-icon { font-size:1rem; margin-bottom:0.2rem; display:block; }
-.db-matrix-wrap { border:1px solid #2a2f38; border-radius:10px; overflow:hidden; margin-bottom:1.5rem; }
-.db-matrix-scroll { overflow-x:auto; overflow-y:auto; max-height:340px; }
+.db-matrix-wrap { border:1px solid #2a3a4a; border-radius:10px; overflow:hidden; margin-bottom:1.5rem; box-shadow: 0 4px 24px rgba(0,0,0,0.4); }
+.db-matrix-scroll { overflow-x:auto; overflow-y:auto; max-height:420px; }
+.db-matrix-scroll::-webkit-scrollbar { width:6px; height:6px; }
+.db-matrix-scroll::-webkit-scrollbar-track { background:#0d1117; }
+.db-matrix-scroll::-webkit-scrollbar-thumb { background:#2a3a4a; border-radius:3px; }
+.db-matrix-scroll::-webkit-scrollbar-thumb:hover { background:#3a5a6a; }
 .db-matrix { min-width:1100px; border-collapse:collapse; width:100%; }
 .db-matrix th, .db-matrix td { padding:0; border:1px solid #1e2330; vertical-align:middle; }
 .db-matrix thead th { background:#131820; padding:0.55rem 0.5rem; font-family:'DM Mono',monospace; font-size:0.58rem; color:#8a8a7a; letter-spacing:0.05em; text-align:center; white-space:nowrap; }
@@ -1692,6 +1696,259 @@ footer {
   margin-top: 0.1rem;
 }
 .db-stat-pill-sub.positive { color: #3dc882; }
+
+/* ══ DEMO MODE ══════════════════════════════════════════
+   Activated by body.demo-mode when Run demo is pressed.
+   - Header slides out of view
+   - Controls collapse to a floating mini-bar (bottom-right)
+   - Matrix expands to fill available height
+════════════════════════════════════════════════════════ */
+
+/* Header hides upward */
+header {
+  transition: transform 0.4s cubic-bezier(0.4,0,0.2,1);
+}
+body.demo-mode header {
+  transform: translateY(-100%);
+}
+
+/* Body no longer needs to offset for header */
+body.demo-mode .intro-strip,
+body.demo-mode .hero,
+body.demo-mode .section,
+body.demo-mode .swimlane-section,
+body.demo-mode .db-section,
+body.demo-mode .tech-section,
+body.demo-mode footer {
+  /* handled by scroll position, no change needed */
+}
+
+/* Controls bar — hide in place, replaced by float bar */
+body.demo-mode .db-controls {
+  display: none;
+}
+
+/* Floating mini controls — bottom right */
+#db-float-controls {
+  display: none;
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 200;
+  background: rgba(13,21,32,0.45);
+  border: 1px solid rgba(58,95,106,0.5);
+  border-radius: 40px;
+  padding: 0.5rem 0.75rem;
+  gap: 0.35rem;
+  align-items: center;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: all 0.2s;
+}
+#db-float-controls:hover {
+  background: rgba(13,21,32,0.7);
+  border-color: rgba(58,95,106,0.8);
+}
+body.demo-mode #db-float-controls {
+  display: flex;
+}
+
+.db-float-btn {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  border: 1px solid rgba(58,95,106,0.4);
+  background: transparent;
+  color: #c8c8b8;
+  font-size: 0.9rem;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.15s;
+  position: relative;
+}
+.db-float-btn:hover { background: rgba(30,48,64,0.6); color: #fff; border-color: rgba(58,95,106,0.9); }
+.db-float-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+.db-float-btn.primary { background: var(--green); border-color: var(--green); color: #fff; }
+.db-float-btn.primary:hover { background: #145a3d; }
+.db-float-btn.danger-float { border-color: rgba(220,50,50,0.4); color: #e85555; }
+.db-float-btn.danger-float:hover { background: rgba(220,50,50,0.2); }
+.db-float-btn.paused {
+  background: rgba(196,154,42,0.2);
+  border-color: rgba(196,154,42,0.6);
+  color: #c49a2a;
+}
+
+/* Tooltip on float buttons */
+.db-float-btn::after {
+  content: attr(data-tip);
+  position: absolute;
+  bottom: 110%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #0d1117;
+  color: #c8c8b8;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  border: 1px solid #2a2f38;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s;
+}
+.db-float-btn:hover::after { opacity: 1; }
+
+/* Float stage counter */
+#db-float-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.62rem;
+  color: #6a8a8a;
+  padding: 0 0.4rem;
+  white-space: nowrap;
+}
+
+/* Float divider */
+.db-float-sep {
+  width: 1px; height: 20px;
+  background: #2a3f52;
+  margin: 0 0.1rem;
+}
+
+/* Exit demo button — top left when in demo mode */
+#db-exit-demo {
+  display: none;
+  position: fixed;
+  top: 0.75rem;
+  left: 1rem;
+  z-index: 200;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.06em;
+  color: #6a8a8a;
+  background: #131e2a;
+  border: 1px solid #2a3f52;
+  border-radius: 4px;
+  padding: 0.35rem 0.75rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+body.demo-mode #db-exit-demo { display: block; }
+#db-exit-demo:hover { color: #fff; border-color: #3a5a6a; }
+
+/* Matrix expands when in demo mode */
+body.demo-mode .db-matrix-scroll {
+  max-height: calc(100vh - 380px);
+}
+
+/* Controls bar sticky offset: when header is hidden, stick to very top */
+body.demo-mode .db-controls {
+  top: 0;
+}
+
+/* In demo mode: hide everything except the action elements */
+body.demo-mode .db-tagline,
+body.demo-mode .db-consignment,
+body.demo-mode .db-party-strip,
+body.demo-mode .db-scroll-hint,
+body.demo-mode .db-legend {
+  display: none;
+}
+
+/* Tighten spacing in demo mode */
+body.demo-mode .db-section {
+  padding-top: 1rem;
+  padding-bottom: 0.5rem;
+}
+body.demo-mode .db-stats-bar {
+  margin-bottom: 0.75rem;
+}
+body.demo-mode .db-narrative {
+  margin-bottom: 0.5rem;
+}
+body.demo-mode .db-pipeline {
+  margin-bottom: 0.75rem;
+}
+body.demo-mode .db-legend {
+  margin-bottom: 0.75rem;
+}
+
+/* Matrix fills maximum available vertical space */
+body.demo-mode .db-matrix-scroll {
+  max-height: calc(100vh - 200px);
+}
+
+/* ── Compact info bar (replaces narrative + stats in demo mode) ── */
+.db-compact-bar {
+  display: none;
+  align-items: center;
+  gap: 0;
+  background: #131e2a;
+  border: 1px solid #2a3f52;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 0.75rem;
+}
+body.demo-mode .db-compact-bar { display: flex; }
+body.demo-mode .db-narrative,
+body.demo-mode .db-stats-bar { display: none; }
+
+.db-compact-stage {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.62rem;
+  color: var(--gold);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  padding: 0.6rem 0.85rem;
+  background: #0d1520;
+  border-right: 1px solid #2a3f52;
+  flex-shrink: 0;
+}
+.db-compact-text {
+  font-size: 0.78rem;
+  color: #c8c8b8;
+  padding: 0.6rem 1rem;
+  line-height: 1.35;
+  flex: 1;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+.db-compact-stats {
+  display: flex;
+  flex-shrink: 0;
+  border-left: 1px solid #2a3f52;
+}
+.db-compact-stat {
+  padding: 0.5rem 0.85rem;
+  border-right: 1px solid #2a3f52;
+  display: flex; flex-direction: column; gap: 0.1rem;
+}
+.db-compact-stat:last-child { border-right: none; }
+.db-compact-stat-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.52rem;
+  color: #4a6a6a;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.db-compact-stat-value {
+  font-family: 'DM Serif Display', serif;
+  font-size: 1rem;
+  color: #e8e8d8;
+  line-height: 1;
+  transition: color 0.3s;
+}
+.db-compact-stat-value.highlight { color: var(--gold); }
+.db-compact-sub {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.52rem;
+  color: #5a6a5a;
+}
+.db-compact-sub.positive { color: #3dc882; }
 </style>
 </head>
 <body>
@@ -1808,7 +2065,7 @@ footer {
       <button class="db-btn" id="db-step-back-btn" onclick="dbStepBack()" disabled>&#8592; Step back</button>
       <button class="db-btn danger" onclick="dbReset()">&#8634; Reset</button>
       <select class="db-speed-select" id="db-speed">
-        <option value="2200">Auto: Normal</option>
+        <option value="4500">Auto: Normal</option>
         <option value="manual">Manual (step only)</option>
       </select>
       <span class="db-progress-label" id="db-progress-label">Press Run demo to begin</span>
@@ -1849,6 +2106,24 @@ footer {
     </div>
 
     <div class="db-pipeline" id="db-pipeline"></div>
+
+    <!-- Compact info bar shown in demo mode — sits between pipeline and legend -->
+    <div class="db-compact-bar" id="db-compact-bar">
+      <div class="db-compact-stage" id="db-compact-stage">Stage &mdash;</div>
+      <div class="db-compact-text" id="db-compact-text">Press Run demo to begin</div>
+      <div class="db-compact-stats">
+        <div class="db-compact-stat">
+          <div class="db-compact-stat-label">Elapsed</div>
+          <div class="db-compact-stat-value" id="db-celapsed">&mdash;</div>
+          <div class="db-compact-sub" id="db-celapsed-sub"></div>
+        </div>
+        <div class="db-compact-stat">
+          <div class="db-compact-stat-label">Compliance</div>
+          <div class="db-compact-stat-value" id="db-ccomp">0%</div>
+          <div class="db-compact-sub positive" id="db-ccomp-sub"></div>
+        </div>
+      </div>
+    </div>
 
     <div class="db-legend">
       <div class="db-legend-item"><div class="db-legend-swatch st-validated" style="color:#3dc882">&#10003;</div> Validated</div>
@@ -2296,9 +2571,9 @@ const DB_STAGE_DATA = [
     elapsedSub: "Port of exit"
   },
   { // S7
-    narrative: "The reefer container crosses on the RoRo ferry. VeriPura monitors ETA via carrier API and auto-updates the IPAFFS pre-notification. TWIN logs transit events immutably.",
+    narrative: "The refrigerated container is in deep-sea transit from Santos to Tilbury — approximately 14-16 days. VeriPura monitors vessel ETA via carrier API and auto-updates the IPAFFS pre-notification. TWIN logs transit events immutably.",
     elapsed: "Day 14",
-    elapsedSub: "Sea crossing — RoRo ferry"
+    elapsedSub: "Deep-sea transit — Santos to Tilbury"
   },
   { // S8 — Act 2
     narrative: "The consignment arrives at Tilbury BCP. All documents are pre-validated. APHA verifies EHC credentials via QR code in seconds. Watch what happens when the Port Health Authority flags a cold-chain anomaly.",
@@ -2337,6 +2612,16 @@ function dbUpdateStageExtras(stageIdx) {
   if (elEl)  { elEl.textContent  = d.elapsed;    elEl.classList.add("highlight"); setTimeout(() => elEl.classList.remove("highlight"), 600); }
   if (elSub) elSub.textContent   = d.elapsedSub;
 
+  // Update compact bar
+  const cStage = document.getElementById('db-compact-stage');
+  const cText  = document.getElementById('db-compact-text');
+  if (cStage) cStage.innerHTML = 'Stage ' + (stageIdx+1) + ' &mdash; ' + CONFIG.stages[stageIdx].label.toUpperCase();
+  if (cText  && d) cText.textContent = d.narrative;
+  const ceEl  = document.getElementById('db-celapsed');
+  const ceSub = document.getElementById('db-celapsed-sub');
+  if (ceEl  && d) { ceEl.textContent  = d.elapsed;    ceEl.classList.add('highlight'); setTimeout(()=>ceEl.classList.remove('highlight'),600); }
+  if (ceSub && d)   ceSub.textContent = d.elapsedSub;
+
   // Compliance score — validated docs / total required docs at this point
   const compEl  = document.getElementById("db-compliance");
   const compSub = document.getElementById("db-compliance-sub");
@@ -2366,6 +2651,10 @@ function dbUpdateStageExtras(stageIdx) {
 function dbResetStageExtras() {
   const narr = document.getElementById("db-narrative");
   if (narr) narr.classList.remove("show");
+  const cStageR = document.getElementById('db-compact-stage'); if(cStageR) cStageR.innerHTML = 'Stage &mdash;';
+  const cTextR  = document.getElementById('db-compact-text');  if(cTextR)  cTextR.textContent = 'Press Run demo to begin';
+  const ceR     = document.getElementById('db-celapsed');       if(ceR)     ceR.textContent    = '\u2014';
+  const ccR     = document.getElementById('db-ccomp');          if(ccR)     ccR.textContent    = '0%';
   const elEl   = document.getElementById("db-elapsed");    if (elEl)   elEl.textContent   = "—";
   const elSub  = document.getElementById("db-elapsed-sub"); if (elSub)  elSub.textContent  = "Journey not started";
   const compEl = document.getElementById("db-compliance"); if (compEl) compEl.textContent  = "0%";
@@ -2546,7 +2835,7 @@ function dbAdvanceStage(targetStage) {
   // Scroll active column into view immediately
   dbScrollToStage(targetStage);
 
-  // Resolve after brief pause
+  // Resolve after brief pause — show "Checking" state for 1.5s
   setTimeout(() => {
     if (targetStage === 4 && !dbAct1Done) {
       dbAct1();
@@ -2558,12 +2847,12 @@ function dbAdvanceStage(targetStage) {
         if (doc.stages.includes(targetStage)) dbStatuses[di][si] = "VALIDATED";
       });
       dbRenderMatrix(); dbRenderPipeline();
-      // Refresh compliance score now docs are validated
       dbUpdateStageExtras(si);
       if (targetStage === 10) { dbUpdateBadge("complete"); dbSetLabel("All 10 stages complete &mdash; consignment cleared &#10003;"); }
-      if (!dbDramaActive) dbScheduleNext();
+      // Only schedule next if still playing (not paused)
+      if (!dbDramaActive && dbPlaying) dbScheduleNext();
     }
-  }, 900);
+  }, 1500);
 }
 
 // ── ACT 1: Stage 4 — EHC caught pre-shipment ────────
@@ -2600,7 +2889,7 @@ function dbAct1() {
     );
     dbAct1Done = true;
     dbDramaActive = false;
-    dbScheduleNext();
+    if (dbPlaying) dbScheduleNext();
   }, 4500);
 }
 
@@ -2633,55 +2922,61 @@ function dbAct2() {
     dbShowResolve(
       "&#10003; Hold Lifted — TWIN Cold-Chain Credential Verified",
       "Signal presented the TWIN-notarised Reefer Temperature Log to the Port Health Authority inspector. "
-      +"The log — anchored on the IOTA ledger at the point of loading and updated at each transit checkpoint — shows the reading was a 4-minute sensor spike during the RoRo ramp crossing, not a sustained exceedance. "
+      +"The log — anchored on the IOTA ledger at the point of loading and updated at each transit checkpoint — shows the reading was a 4-minute sensor spike during container handling at the port of discharge, not a sustained exceedance. "
       +"Core product temperature remained within specification throughout. "
       +"<strong style=\"color:#3dc882\">Hold lifted in 47 minutes. No sampling required. No product destroyed. Vessel departed on schedule.</strong> "
       +"Without TWIN: 24&ndash;72 hour hold, laboratory costs, and potential rejection of the entire 18,500 kg consignment."
     );
     dbAct2Done = true;
     dbDramaActive = false;
-    dbScheduleNext();
+    if (dbPlaying) dbScheduleNext();
   }, 5000);
 }
 
 // ── Scroll matrix to active column + first active row ──
 function dbScrollToStage(targetStage) {
-  // Delay allows the re-rendered table to settle in the DOM
-  setTimeout(() => {
+  // Two-pass: immediate + delayed for reliability
+  function doScroll() {
     const scroll = document.querySelector(".db-matrix-scroll");
+    const table  = scroll ? scroll.querySelector("table") : null;
     const head   = document.getElementById("db-matrix-head");
     const body   = document.getElementById("db-matrix-body");
-    if (!scroll || !head) return;
+    if (!scroll || !head || !table) return;
 
-    // Horizontal: find the th by its text content matching stage number
-    const ths = head.querySelectorAll("th.stage-th");
-    const th  = ths[targetStage - 1];
-    if (th) {
-      const colLeft  = th.offsetLeft;
-      const colWidth = th.offsetWidth;
-      const viewW    = scroll.clientWidth;
-      const leftTarget = Math.max(0, colLeft - viewW / 2 + colWidth / 2);
-      scroll.scrollLeft = leftTarget;
-    }
+    // ── Horizontal: use column index × average column width ──
+    // This avoids getBoundingClientRect timing issues entirely
+    const ths      = head.querySelectorAll("th.stage-th");
+    const docCol   = head.querySelector("th.doc-col-head");
+    const docColW  = docCol ? docCol.offsetWidth : 200;
+    // Find average stage column width from first few ths
+    let colW = 100;
+    if (ths.length > 0) colW = ths[0].offsetWidth || 100;
+    // Target: left edge of active column, centred in viewport (minus doc col)
+    const activeColLeft = docColW + (targetStage - 1) * colW;
+    const centreTarget  = activeColLeft - (scroll.clientWidth / 2) + (colW / 2);
+    scroll.scrollLeft   = Math.max(0, centreTarget);
 
-    // Vertical: scroll to first row active at this stage
+    // ── Vertical: first active row ──
     if (body) {
       const si   = targetStage - 1;
       const rows = body.querySelectorAll("tr");
+      const headH = head.offsetHeight;
       for (let i = 0; i < rows.length; i++) {
         const cells = rows[i].querySelectorAll("td");
         const cell  = cells[si + 1];
         if (cell && !cell.classList.contains("st-na")) {
-          const rowTop    = rows[i].offsetTop;
-          const rowH      = rows[i].offsetHeight;
-          const viewH     = scroll.clientHeight;
-          const headH     = head.offsetHeight;
-          scroll.scrollTop = Math.max(0, rowTop - headH - viewH / 2 + rowH);
+          const rowRect    = rows[i].getBoundingClientRect();
+          const scrollRect = scroll.getBoundingClientRect();
+          const rowTopInContainer = rowRect.top - scrollRect.top + scroll.scrollTop;
+          scroll.scrollTop = Math.max(0, rowTopInContainer - headH - 20);
           break;
         }
       }
     }
-  }, 50);
+  }
+  // Run immediately and again after render settles
+  setTimeout(doScroll, 60);
+  setTimeout(doScroll, 200);
 }
 
 // ── Auto-play scheduler ──────────────────────────────
@@ -2699,7 +2994,7 @@ function dbScheduleNext() {
     dbSetLabel("Manual mode &mdash; use Step forward to continue");
     return;
   }
-  const delay = parseInt(speedVal) || 2200;
+  const delay = parseInt(speedVal) || 4500;
   dbTimer = setTimeout(() => {
     dbCurrentStage++;
     dbStageHistory.push(dbCurrentStage);
@@ -2710,12 +3005,8 @@ function dbScheduleNext() {
 // ── Controls ─────────────────────────────────────────
 function dbPlay() {
   if (dbCurrentStage >= 10) dbReset();
-  // Scroll so controls bar sits just below the top header
-  const ctrl = document.querySelector(".db-controls");
-  if (ctrl) {
-    const top = ctrl.getBoundingClientRect().top + window.scrollY - parseInt(getComputedStyle(document.documentElement).getPropertyValue('--header-h'));
-    window.scrollTo({ top: top, behavior: "smooth" });
-  }
+  // Enter demo mode — hide header, show float controls
+  dbEnterDemoMode();
   // If manual mode selected, just step forward once
   if (document.getElementById("db-speed").value === "manual") {
     dbStepFwd();
@@ -2738,13 +3029,7 @@ function dbStepFwd() {
   if (dbCurrentStage >= 10 || dbDramaActive) return;
   clearTimeout(dbTimer);
   dbPlaying = false;
-  // Ensure controls stay in view
-  const ctrl = document.querySelector(".db-controls");
-  if (ctrl) {
-    const top = ctrl.getBoundingClientRect().top + window.scrollY - parseInt(getComputedStyle(document.documentElement).getPropertyValue('--header-h'));
-    if (ctrl.getBoundingClientRect().top < parseInt(getComputedStyle(document.documentElement).getPropertyValue('--header-h')) + 10)
-      window.scrollTo({ top: top, behavior: "smooth" });
-  }
+  if (!document.body.classList.contains('demo-mode')) dbEnterDemoMode();
   dbCurrentStage++;
   dbStageHistory.push(dbCurrentStage);
   dbAdvanceStage(dbCurrentStage);
@@ -2774,20 +3059,20 @@ function dbStepBack() {
 }
 
 function dbTogglePause() {
-  const btn = document.getElementById("db-pause-btn");
+  const btn  = document.getElementById("db-pause-btn");
+  const fbtn = document.getElementById("dbf-pause");
   if (dbPlaying) {
-    // Currently playing — pause it
     clearTimeout(dbTimer);
     dbPlaying = false;
-    btn.classList.add("paused");
-    btn.innerHTML = "&#9654; Resume";
+    // Update both main and float buttons
+    if (btn)  { btn.classList.add("paused");    btn.innerHTML  = "&#9654; Resume"; }
+    if (fbtn) { fbtn.classList.add("paused");   fbtn.innerHTML = "&#9654;"; fbtn.setAttribute("data-tip","Resume"); fbtn.disabled = false; }
     dbSetBtns({ play:false, fwd:true, back:dbCurrentStage>0, pause:true });
     dbSetLabel("Paused at stage "+dbCurrentStage+" &mdash; press Resume or Step forward");
   } else {
-    // Currently paused — resume auto-play
-    btn.classList.remove("paused");
-    btn.innerHTML = "&#9646;&#9646; Pause";
     dbPlaying = true;
+    if (btn)  { btn.classList.remove("paused");  btn.innerHTML  = "&#9646;&#9646; Pause"; }
+    if (fbtn) { fbtn.classList.remove("paused"); fbtn.innerHTML = "&#9646;&#9646;"; fbtn.setAttribute("data-tip","Pause"); fbtn.disabled = false; }
     dbSetBtns({ play:false, fwd:true, back:dbCurrentStage>0, pause:true });
     dbScheduleNext();
   }
@@ -2798,6 +3083,7 @@ function dbPause() { if (dbPlaying) dbTogglePause(); }
 function dbReset() {
   clearTimeout(dbTimer);
   dbPlaying = false;
+  document.body.classList.remove('demo-mode');
   dbInit();
 }
 
@@ -2836,6 +3122,11 @@ function dbSetBtns(s) {
   document.getElementById("db-step-fwd-btn").disabled  = !s.fwd;
   document.getElementById("db-step-back-btn").disabled = !s.back;
   document.getElementById("db-pause-btn").disabled     = !s.pause;
+  // Mirror to float buttons
+  const fp = document.getElementById("dbf-play");   if (fp)  fp.disabled  = !s.play;
+  const ff = document.getElementById("dbf-fwd");    if (ff)  ff.disabled  = !s.fwd;
+  const fb = document.getElementById("dbf-back");   if (fb)  fb.disabled  = !s.back;
+  const fpa= document.getElementById("dbf-pause");  if (fpa) fpa.disabled = !s.pause;
 }
 
 function dbSetLabel(html) {
@@ -2872,7 +3163,72 @@ function dbHideAllBanners() {
 
 dbInit();
 
+// ══ DEMO MODE ══════════════════════════════════════════
+function dbEnterDemoMode() {
+  document.body.classList.add('demo-mode');
+  // Scroll to pipeline — first action element visible
+  setTimeout(() => {
+    const pipeline = document.getElementById('db-pipeline');
+    if (pipeline) {
+      const top = pipeline.getBoundingClientRect().top + window.scrollY - 12;
+      window.scrollTo({ top: top, behavior: 'smooth' });
+    }
+  }, 80);
+}
+
+function dbExitDemo() {
+  document.body.classList.remove('demo-mode');
+  clearTimeout(dbTimer);
+  dbPlaying = false;
+  window.scrollTo({ top: document.getElementById('dashboard').offsetTop - 80, behavior: 'smooth' });
+}
+
+function dbSyncFloatBtns() {
+  const playMain  = document.getElementById('db-play-btn');
+  const pauseMain = document.getElementById('db-pause-btn');
+  const fwdMain   = document.getElementById('db-step-fwd-btn');
+  const backMain  = document.getElementById('db-step-back-btn');
+  const fPlay  = document.getElementById('dbf-play');
+  const fPause = document.getElementById('dbf-pause');
+  const fFwd   = document.getElementById('dbf-fwd');
+  const fBack  = document.getElementById('dbf-back');
+  const fLabel = document.getElementById('db-float-label');
+  if (fPlay)  fPlay.disabled = playMain ? playMain.disabled : false;
+  if (fPause) {
+    fPause.disabled  = pauseMain ? pauseMain.disabled : true;
+    const isPaused   = pauseMain && pauseMain.classList.contains('paused');
+    fPause.className = 'db-float-btn' + (isPaused ? ' paused' : '');
+    fPause.innerHTML = isPaused ? '&#9654;' : '&#9646;&#9646;';
+    fPause.setAttribute('data-tip', isPaused ? 'Resume' : 'Pause');
+  }
+  if (fFwd)  fFwd.disabled  = fwdMain  ? fwdMain.disabled  : true;
+  if (fBack) fBack.disabled = backMain ? backMain.disabled : true;
+  if (fLabel) fLabel.textContent = dbCurrentStage > 0 ? ('S' + dbCurrentStage + '/10') : '—';
+}
+
+const _origSetBtns = dbSetBtns;
+dbSetBtns = function(s) {
+  _origSetBtns(s);
+  dbSyncFloatBtns();
+};
+
 
 </script>
+
+<!-- ── Floating mini controls (demo mode) ── -->
+<button id="db-exit-demo" onclick="dbExitDemo()">&#x2715; Exit demo</button>
+
+<div id="db-float-controls">
+  <button class="db-float-btn primary" id="dbf-play" onclick="dbPlay()" data-tip="Run demo">&#9654;</button>
+  <button class="db-float-btn" id="dbf-pause" onclick="dbTogglePause()" disabled data-tip="Pause">&#9646;&#9646;</button>
+  <div class="db-float-sep"></div>
+  <button class="db-float-btn" id="dbf-back" onclick="dbStepBack()" disabled data-tip="Step back">&#8592;</button>
+  <button class="db-float-btn" id="dbf-fwd" onclick="dbStepFwd()" disabled data-tip="Step forward">&#8594;</button>
+  <div class="db-float-sep"></div>
+  <span id="db-float-label">&#x2014;</span>
+  <div class="db-float-sep"></div>
+  <button class="db-float-btn danger-float" onclick="dbReset()" data-tip="Reset">&#8634;</button>
+</div>
+
 </body>
 </html>
