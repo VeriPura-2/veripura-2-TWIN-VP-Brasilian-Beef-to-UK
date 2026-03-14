@@ -465,7 +465,7 @@ header {
 .header-sub {
   font-family: 'DM Mono', monospace;
   font-size: 0.7rem;
-  color: #8a8a7a;
+  color: #c8c8b8;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
@@ -477,7 +477,7 @@ header {
 .nav-btn {
   font-family: 'DM Mono', monospace;
   font-size: 0.72rem;
-  color: #8a8a7a;
+  color: #a8a8a0;
   background: none;
   border: 1px solid transparent;
   padding: 0.35rem 0.75rem;
@@ -1524,19 +1524,19 @@ footer {
 .db-status-badge { font-family:'DM Mono',monospace; font-size:0.68rem; padding:0.4rem 1rem; border-radius:20px; border:1px solid; letter-spacing:0.06em; white-space:nowrap; display:flex; align-items:center; gap:0.4rem; }
 .db-pipeline { display:grid; grid-template-columns:repeat(10,1fr); gap:3px; margin-bottom:1.5rem; }
 .db-pipe-cell { border-radius:4px; padding:0.5rem 0.4rem; text-align:center; transition:all 0.3s; cursor:pointer; }
-.db-pipe-num { font-family:'DM Mono',monospace; font-size:0.58rem; color:#5a5a4a; margin-bottom:0.25rem; }
-.db-pipe-label { font-size:0.62rem; font-weight:500; line-height:1.3; color:#8a8a7a; }
+.db-pipe-num { font-family:'DM Mono',monospace; font-size:0.58rem; color:#8a8a7a; margin-bottom:0.25rem; }
+.db-pipe-label { font-size:0.62rem; font-weight:500; line-height:1.3; color:#c8c8b8; }
 .db-pipe-icon { font-size:1rem; margin-bottom:0.2rem; display:block; }
 .db-matrix-wrap { border:1px solid #2a2f38; border-radius:10px; overflow:hidden; margin-bottom:1.5rem; }
-.db-matrix-scroll { overflow-x:auto; }
+.db-matrix-scroll { overflow-x:auto; overflow-y:auto; max-height:340px; }
 .db-matrix { min-width:1100px; border-collapse:collapse; width:100%; }
 .db-matrix th, .db-matrix td { padding:0; border:1px solid #1e2330; vertical-align:middle; }
-.db-matrix thead th { background:#131820; padding:0.55rem 0.5rem; font-family:'DM Mono',monospace; font-size:0.58rem; color:#5a5a5a; letter-spacing:0.05em; text-align:center; white-space:nowrap; }
-.db-matrix thead th.stage-th { font-size:0.6rem; color:#8a8a7a; min-width:90px; }
+.db-matrix thead th { background:#131820; padding:0.55rem 0.5rem; font-family:'DM Mono',monospace; font-size:0.58rem; color:#8a8a7a; letter-spacing:0.05em; text-align:center; white-space:nowrap; }
+.db-matrix thead th.stage-th { font-size:0.6rem; color:#c8c8b8; min-width:90px; }
 .db-matrix thead th.doc-col-head { text-align:left; min-width:200px; padding:0.55rem 0.75rem; }
 .db-matrix tbody tr:hover td { background:rgba(255,255,255,0.02); }
-.db-doc-name { padding:0.55rem 0.75rem; font-size:0.72rem; color:#a8a898; background:#0f1318; white-space:nowrap; position:sticky; left:0; z-index:1; border-right:2px solid #2a2f38 !important; }
-.db-doc-cat { font-family:'DM Mono',monospace; font-size:0.55rem; color:#4a4a3a; text-transform:uppercase; letter-spacing:0.06em; margin-top:0.1rem; }
+.db-doc-name { padding:0.55rem 0.75rem; font-size:0.72rem; color:#ddddd0; background:#0f1318; white-space:nowrap; position:sticky; left:0; z-index:1; border-right:2px solid #2a2f38 !important; }
+.db-doc-cat { font-family:'DM Mono',monospace; font-size:0.55rem; color:#7a8a8a; text-transform:uppercase; letter-spacing:0.06em; margin-top:0.1rem; }
 .db-status-cell { text-align:center; padding:0.45rem 0.3rem; transition:all 0.4s; cursor:default; }
 .db-status-icon { font-size:0.85rem; display:block; line-height:1; }
 .db-status-label { font-family:'DM Mono',monospace; font-size:0.5rem; display:block; margin-top:0.15rem; letter-spacing:0.04em; }
@@ -1551,10 +1551,10 @@ footer {
 .st-rejected .db-status-label { color:#e85555; }
 .st-missing { background:rgba(100,100,100,0.12); }
 .st-missing .db-status-icon { color:#444; }
-.st-missing .db-status-label { color:#333; }
+.st-missing .db-status-label { color:#6a6a6a; }
 .st-na { background:transparent; }
 .st-na .db-status-icon { color:#252525; }
-.st-na .db-status-label { color:#252525; }
+.st-na .db-status-label { color:#3a3a3a; }
 .st-active { background:rgba(15,90,138,0.35); }
 .st-active .db-status-icon { color:#5ab8f5; }
 .st-active .db-status-label { color:#5ab8f5; }
@@ -1573,13 +1573,24 @@ footer {
 .db-party-card-head { display:flex; align-items:center; gap:0.6rem; margin-bottom:0.75rem; }
 .db-party-card-logo { width:28px; height:28px; border-radius:5px; display:flex; align-items:center; justify-content:center; font-family:'DM Mono',monospace; font-size:0.55rem; font-weight:500; color:#fff; }
 .db-party-card-name { font-size:0.8rem; font-weight:600; color:#e8e8d8; }
-.db-party-card-role { font-family:'DM Mono',monospace; font-size:0.58rem; color:#5a5a4a; }
+.db-party-card-role { font-family:'DM Mono',monospace; font-size:0.58rem; color:#8a8a7a; }
 .db-activity-list { display:flex; flex-direction:column; gap:0.35rem; }
-.db-activity-item { display:flex; align-items:start; gap:0.4rem; font-size:0.72rem; line-height:1.45; color:#7a7a6a; transition:color 0.3s; }
+.db-activity-item { display:flex; align-items:start; gap:0.4rem; font-size:0.72rem; line-height:1.45; color:#a0a090; transition:color 0.3s; }
 .db-activity-item.live { color:#c8c8b8; }
 .db-activity-dot { width:5px; height:5px; border-radius:50%; margin-top:5px; flex-shrink:0; background:#3a3a2a; transition:background 0.3s; }
 .db-activity-item.live .db-activity-dot { background:var(--gold); }
-.db-controls { display:flex; align-items:center; gap:0.75rem; margin-bottom:2rem; flex-wrap:wrap; }
+.db-controls {
+  display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;
+  position: sticky;
+  top: var(--header-h);
+  z-index: 50;
+  background: #0d1117;
+  border-bottom: 1px solid #2a2f38;
+  padding: 0.75rem 0;
+  margin: 0 -2rem 2rem;
+  padding-left: 2rem;
+  padding-right: 2rem;
+}
 .db-btn { font-family:'DM Mono',monospace; font-size:0.72rem; letter-spacing:0.05em; padding:0.6rem 1.25rem; border-radius:6px; border:1px solid #2a2f38; background:#1a1f28; color:#c8c8b8; cursor:pointer; transition:all 0.2s; display:flex; align-items:center; gap:0.5rem; }
 .db-btn:hover { background:#252b38; border-color:#3a4050; color:#fff; }
 .db-btn.primary { background:var(--green); border-color:var(--green); color:#fff; }
@@ -1587,12 +1598,12 @@ footer {
 .db-btn.danger { background:rgba(220,50,50,0.15); border-color:rgba(220,50,50,0.4); color:#e85555; }
 .db-btn.danger:hover { background:rgba(220,50,50,0.25); }
 .db-btn:disabled { opacity:0.35; cursor:not-allowed; }
-.db-progress-label { font-family:'DM Mono',monospace; font-size:0.65rem; color:#5a5a4a; margin-left:auto; }
+.db-progress-label { font-family:'DM Mono',monospace; font-size:0.65rem; color:#a8a898; margin-left:auto; }
 
 .db-legend { display:flex; gap:1.25rem; flex-wrap:wrap; margin-bottom:1.5rem; }
-.db-legend-item { display:flex; align-items:center; gap:0.4rem; font-family:'DM Mono',monospace; font-size:0.62rem; color:#5a5a4a; }
+.db-legend-item { display:flex; align-items:center; gap:0.4rem; font-family:'DM Mono',monospace; font-size:0.62rem; color:#a8a898; }
 .db-legend-swatch { width:14px; height:14px; border-radius:3px; display:flex; align-items:center; justify-content:center; font-size:0.55rem; }
-.db-scroll-hint { font-family:'DM Mono',monospace; font-size:0.62rem; color:#3a3a2a; text-align:center; padding:0.5rem; background:#131820; border-top:1px solid #1e2330; }
+.db-scroll-hint { font-family:'DM Mono',monospace; font-size:0.62rem; color:#7a8a8a; text-align:center; padding:0.5rem; background:#131820; border-top:1px solid #1e2330; }
 @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
 .blinking { animation:blink 1s infinite; }
 
@@ -1604,6 +1615,83 @@ footer {
 .st-hold .db-status-icon { color:#e8a020; }
 .st-hold .db-status-label { color:#e8a020; }
 .db-speed-select { font-family:'DM Mono',monospace; font-size:0.68rem; background:#1a1f28; color:#8a8a7a; border:1px solid #2a2f38; border-radius:5px; padding:0.5rem 0.6rem; cursor:pointer; }
+
+/* Pause button — amber when paused */
+#db-pause-btn.paused {
+  background: rgba(196,154,42,0.2);
+  border-color: rgba(196,154,42,0.6);
+  color: #c49a2a;
+}
+#db-pause-btn.paused:hover {
+  background: rgba(196,154,42,0.35);
+  color: #e8c040;
+}
+
+/* ── Stage narrative banner ── */
+.db-narrative {
+  display: none;
+  background: #131e2a;
+  border: 1px solid #2a3f52;
+  border-left: 3px solid var(--gold);
+  border-radius: 6px;
+  padding: 0.75rem 1.25rem;
+  margin-bottom: 1rem;
+  animation: fadeUp 0.35s ease;
+}
+.db-narrative.show { display: block; }
+.db-narrative-stage {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.62rem;
+  color: var(--gold);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 0.3rem;
+}
+.db-narrative-text {
+  font-size: 0.88rem;
+  color: #c8c8b8;
+  line-height: 1.6;
+}
+
+/* ── Stats bar (elapsed time + time saved) ── */
+.db-stats-bar {
+  display: flex;
+  gap: 1px;
+  background: #2a2f38;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+}
+.db-stat-pill {
+  flex: 1;
+  background: #1a1f28;
+  padding: 0.75rem 1rem;
+  display: flex; flex-direction: column; gap: 0.2rem;
+}
+.db-stat-pill-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.58rem;
+  color: #5a5a4a;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.db-stat-pill-value {
+  font-family: 'DM Serif Display', serif;
+  font-size: 1.4rem;
+  color: #e8e8d8;
+  line-height: 1;
+  transition: all 0.4s ease;
+}
+.db-stat-pill-value.highlight {
+  color: var(--gold);
+}
+.db-stat-pill-sub {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  color: #5a6a5a;
+  margin-top: 0.1rem;
+}
+.db-stat-pill-sub.positive { color: #3dc882; }
 </style>
 </head>
 <body>
@@ -1619,7 +1707,7 @@ footer {
     <button class="nav-btn active" onclick="scrollTo(0,0)">Overview</button>
     <button class="nav-btn" onclick="document.getElementById('process').scrollIntoView({behavior:'smooth'})">Process</button>
     <button class="nav-btn" onclick="document.getElementById('swimlane').scrollIntoView({behavior:'smooth'})">Swimlanes</button>
-    <button class="nav-btn" onclick="document.getElementById('dashboard').scrollIntoView({behavior:'smooth'})">Dashboard</button>
+    <button class="nav-btn" onclick="document.getElementById('dashboard').scrollIntoView({behavior:'smooth'})">Demo</button>
     <button class="nav-btn" onclick="document.getElementById('technology').scrollIntoView({behavior:'smooth'})">Technology</button>
   </nav>
 </header>
@@ -1715,16 +1803,36 @@ footer {
 
     <div class="db-controls">
       <button class="db-btn primary" id="db-play-btn" onclick="dbPlay()">&#9654; Run demo</button>
+      <button class="db-btn" id="db-pause-btn" onclick="dbTogglePause()" disabled>&#9646;&#9646; Pause</button>
       <button class="db-btn" id="db-step-fwd-btn" onclick="dbStepFwd()" disabled>&#8594; Step forward</button>
       <button class="db-btn" id="db-step-back-btn" onclick="dbStepBack()" disabled>&#8592; Step back</button>
-      <button class="db-btn" id="db-pause-btn" onclick="dbPause()" disabled>&#9646;&#9646; Pause</button>
       <button class="db-btn danger" onclick="dbReset()">&#8634; Reset</button>
       <select class="db-speed-select" id="db-speed">
-        <option value="2200">Speed: Normal</option>
-        <option value="1000">Speed: Fast</option>
-        <option value="400">Speed: Presenter</option>
+        <option value="2200">Auto: Normal</option>
+        <option value="manual">Manual (step only)</option>
       </select>
       <span class="db-progress-label" id="db-progress-label">Press Run demo to begin</span>
+    </div>
+
+    <!-- Stage narrative banner -->
+    <div class="db-narrative" id="db-narrative">
+      <div class="db-narrative-stage" id="db-narrative-stage"></div>
+      <div class="db-narrative-text" id="db-narrative-text"></div>
+    </div>
+
+    <!-- Stats bar: elapsed time + compliance score + time saved -->
+    <div class="db-stats-bar">
+      <div class="db-stat-pill">
+        <div class="db-stat-pill-label">Elapsed (simulated)</div>
+        <div class="db-stat-pill-value" id="db-elapsed">&mdash;</div>
+        <div class="db-stat-pill-sub" id="db-elapsed-sub">Journey not started</div>
+      </div>
+      <div class="db-stat-pill">
+        <div class="db-stat-pill-label">Compliance score</div>
+        <div class="db-stat-pill-value" id="db-compliance">0%</div>
+        <div class="db-stat-pill-sub positive" id="db-compliance-sub">0 of 10 stages validated</div>
+      </div>
+
     </div>
 
     <div class="db-alert" id="db-alert">
@@ -2154,6 +2262,116 @@ const tech = CONFIG.technology;
     </div>`;
 });
 
+
+// ── Per-stage narrative, elapsed time, time saved ────
+const DB_STAGE_DATA = [
+  { // S1
+    narrative: "Signal initiates the import enquiry. VeriPura runs live checks against DEFRA's establishment register, confirms the SIF number and scans for APHA suspensions — all before the purchase order is placed.",
+    elapsed: "Day 1",
+    elapsedSub: "Pre-order checks"
+  },
+  { // S2
+    narrative: "Signal coordinates product specification with Marfrig. VeriPura maps the spec against UK import requirements and validates SISBOV segregation — confirming herd eligibility before production begins.",
+    elapsed: "Day 2",
+    elapsedSub: "Product assessment"
+  },
+  { // S3
+    narrative: "Signal compiles the commercial document pack. VeriPura ingests invoice, packing list and export licence — validating HS codes, weights and declared values in minutes, not days.",
+    elapsed: "Day 4",
+    elapsedSub: "Commercial documentation"
+  },
+  { // S4 — Act 1
+    narrative: "The Official Vet issues health certificates. VeriPura validates EHC template compliance and OV credentials — catching issues before loading, not at the border.",
+    elapsed: "Day 6",
+    elapsedSub: "Health certification"
+  },
+  { // S5
+    narrative: "Signal books the approved haulier and oversees loading at the cold store. TWIN notarises the seal number, vehicle ID and temperature range at the point of loading.",
+    elapsed: "Day 8",
+    elapsedSub: "Loading & dispatch"
+  },
+  { // S6
+    narrative: "Signal files the export declaration at the port of exit. VeriPura pre-validates HS codes and declared values against the full document set — errors caught before the vessel departs.",
+    elapsed: "Day 9",
+    elapsedSub: "Port of exit"
+  },
+  { // S7
+    narrative: "The reefer container crosses on the RoRo ferry. VeriPura monitors ETA via carrier API and auto-updates the IPAFFS pre-notification. TWIN logs transit events immutably.",
+    elapsed: "Day 14",
+    elapsedSub: "Sea crossing — RoRo ferry"
+  },
+  { // S8 — Act 2
+    narrative: "The consignment arrives at Tilbury BCP. All documents are pre-validated. APHA verifies EHC credentials via QR code in seconds. Watch what happens when the Port Health Authority flags a cold-chain anomaly.",
+    elapsed: "Day 15",
+    elapsedSub: "Tilbury BCP — port of entry"
+  },
+  { // S9
+    narrative: "Signal submits the finalised import declaration via CDS. VeriPura has pre-validated tariff classification and duty calculations — the broker submits with confidence.",
+    elapsed: "Day 16",
+    elapsedSub: "UK customs clearance"
+  },
+  { // S10
+    narrative: "Goods received at Meadow Foods UK cold store. VeriPura issues the end-to-end compliance certificate. TWIN's immutable chain — from Brazilian farm to UK warehouse — is complete.",
+    elapsed: "Day 17",
+    elapsedSub: "Goods-in & delivery"
+  }
+];
+
+function dbUpdateStageExtras(stageIdx) {
+  const d = DB_STAGE_DATA[stageIdx];
+  if (!d) return;
+
+  // Narrative banner
+  const narr = document.getElementById("db-narrative");
+  const narrStage = document.getElementById("db-narrative-stage");
+  const narrText  = document.getElementById("db-narrative-text");
+  if (narr && narrStage && narrText) {
+    narrStage.textContent = "Stage " + (stageIdx + 1) + " — " + CONFIG.stages[stageIdx].label;
+    narrText.textContent  = d.narrative;
+    narr.classList.add("show");
+  }
+
+  // Elapsed time
+  const elEl  = document.getElementById("db-elapsed");
+  const elSub = document.getElementById("db-elapsed-sub");
+  if (elEl)  { elEl.textContent  = d.elapsed;    elEl.classList.add("highlight"); setTimeout(() => elEl.classList.remove("highlight"), 600); }
+  if (elSub) elSub.textContent   = d.elapsedSub;
+
+  // Compliance score — validated docs / total required docs at this point
+  const compEl  = document.getElementById("db-compliance");
+  const compSub = document.getElementById("db-compliance-sub");
+  // Count docs that should be validated by now (all stages up to and including current)
+  let totalRequired = 0, totalValidated = 0;
+  DB_DOCS.forEach((doc, di) => {
+    const relevantStages = doc.stages.filter(s => s <= stageIdx + 1);
+    if (relevantStages.length > 0) {
+      totalRequired++;
+      const latestSi = relevantStages[relevantStages.length - 1] - 1;
+      if (dbStatuses[di][latestSi] === "VALIDATED") totalValidated++;
+    }
+  });
+  const pct = totalRequired > 0 ? Math.round((totalValidated / totalRequired) * 100) : 0;
+  const stagesPct = Math.round(((stageIdx + 1) / 10) * 100);
+  const label = stagesPct === 100 ? "COMPLIANT" : stagesPct >= 70 ? "ON TRACK" : stagesPct >= 30 ? "IN PROGRESS" : "INITIATED";
+  if (compEl)  {
+    compEl.textContent = pct + "%";
+    compEl.classList.add("highlight");
+    setTimeout(() => compEl.classList.remove("highlight"), 600);
+  }
+  if (compSub) compSub.textContent = label + " — " + (stageIdx + 1) + " of 10 stages";
+
+
+}
+
+function dbResetStageExtras() {
+  const narr = document.getElementById("db-narrative");
+  if (narr) narr.classList.remove("show");
+  const elEl   = document.getElementById("db-elapsed");    if (elEl)   elEl.textContent   = "—";
+  const elSub  = document.getElementById("db-elapsed-sub"); if (elSub)  elSub.textContent  = "Journey not started";
+  const compEl = document.getElementById("db-compliance"); if (compEl) compEl.textContent  = "0%";
+  const compSub= document.getElementById("db-compliance-sub"); if (compSub) compSub.textContent = "0 of 10 stages cleared";
+}
+
 // ══════════════════════════════════════════════════════
 // DASHBOARD ENGINE — v2
 // Auto-play with full manual controls.
@@ -2239,11 +2457,14 @@ function dbInit() {
   dbAct2Done  = false;
   dbDramaActive = false;
   dbHideAllBanners();
+  dbResetStageExtras();
   dbRenderPipeline();
   dbRenderMatrix();
   dbRenderPartyStrip(-1);
   dbUpdateBadge("not-started");
   dbSetLabel("Press <strong>Run demo</strong> to begin");
+  const pbtn = document.getElementById("db-pause-btn");
+  if (pbtn) { pbtn.classList.remove("paused"); pbtn.innerHTML = "&#9646;&#9646; Pause"; }
   dbSetBtns({ play:true, fwd:false, back:false, pause:false });
 }
 
@@ -2321,6 +2542,9 @@ function dbAdvanceStage(targetStage) {
   dbHideAllBanners();
   dbUpdateBadge("in-progress", targetStage);
   dbSetLabel("Stage " + targetStage + " of 10 &mdash; " + CONFIG.stages[si].label);
+  dbUpdateStageExtras(si);
+  // Scroll active column into view immediately
+  dbScrollToStage(targetStage);
 
   // Resolve after brief pause
   setTimeout(() => {
@@ -2334,6 +2558,8 @@ function dbAdvanceStage(targetStage) {
         if (doc.stages.includes(targetStage)) dbStatuses[di][si] = "VALIDATED";
       });
       dbRenderMatrix(); dbRenderPipeline();
+      // Refresh compliance score now docs are validated
+      dbUpdateStageExtras(si);
       if (targetStage === 10) { dbUpdateBadge("complete"); dbSetLabel("All 10 stages complete &mdash; consignment cleared &#10003;"); }
       if (!dbDramaActive) dbScheduleNext();
     }
@@ -2418,6 +2644,46 @@ function dbAct2() {
   }, 5000);
 }
 
+// ── Scroll matrix to active column + first active row ──
+function dbScrollToStage(targetStage) {
+  // Delay allows the re-rendered table to settle in the DOM
+  setTimeout(() => {
+    const scroll = document.querySelector(".db-matrix-scroll");
+    const head   = document.getElementById("db-matrix-head");
+    const body   = document.getElementById("db-matrix-body");
+    if (!scroll || !head) return;
+
+    // Horizontal: find the th by its text content matching stage number
+    const ths = head.querySelectorAll("th.stage-th");
+    const th  = ths[targetStage - 1];
+    if (th) {
+      const colLeft  = th.offsetLeft;
+      const colWidth = th.offsetWidth;
+      const viewW    = scroll.clientWidth;
+      const leftTarget = Math.max(0, colLeft - viewW / 2 + colWidth / 2);
+      scroll.scrollLeft = leftTarget;
+    }
+
+    // Vertical: scroll to first row active at this stage
+    if (body) {
+      const si   = targetStage - 1;
+      const rows = body.querySelectorAll("tr");
+      for (let i = 0; i < rows.length; i++) {
+        const cells = rows[i].querySelectorAll("td");
+        const cell  = cells[si + 1];
+        if (cell && !cell.classList.contains("st-na")) {
+          const rowTop    = rows[i].offsetTop;
+          const rowH      = rows[i].offsetHeight;
+          const viewH     = scroll.clientHeight;
+          const headH     = head.offsetHeight;
+          scroll.scrollTop = Math.max(0, rowTop - headH - viewH / 2 + rowH);
+          break;
+        }
+      }
+    }
+  }, 50);
+}
+
 // ── Auto-play scheduler ──────────────────────────────
 function dbScheduleNext() {
   if (!dbPlaying || dbCurrentStage >= 10) {
@@ -2425,7 +2691,15 @@ function dbScheduleNext() {
     dbSetBtns({ play: dbCurrentStage < 10, fwd: dbCurrentStage < 10, back: dbCurrentStage > 0, pause: false });
     return;
   }
-  const delay = parseInt(document.getElementById("db-speed").value) || 2200;
+  const speedVal = document.getElementById("db-speed").value;
+  // Manual mode: stop auto-play, hand control to step buttons
+  if (speedVal === "manual") {
+    dbPlaying = false;
+    dbSetBtns({ play: true, fwd: dbCurrentStage < 10, back: dbCurrentStage > 0, pause: false });
+    dbSetLabel("Manual mode &mdash; use Step forward to continue");
+    return;
+  }
+  const delay = parseInt(speedVal) || 2200;
   dbTimer = setTimeout(() => {
     dbCurrentStage++;
     dbStageHistory.push(dbCurrentStage);
@@ -2436,6 +2710,19 @@ function dbScheduleNext() {
 // ── Controls ─────────────────────────────────────────
 function dbPlay() {
   if (dbCurrentStage >= 10) dbReset();
+  // Scroll so controls bar sits just below the top header
+  const ctrl = document.querySelector(".db-controls");
+  if (ctrl) {
+    const top = ctrl.getBoundingClientRect().top + window.scrollY - parseInt(getComputedStyle(document.documentElement).getPropertyValue('--header-h'));
+    window.scrollTo({ top: top, behavior: "smooth" });
+  }
+  // If manual mode selected, just step forward once
+  if (document.getElementById("db-speed").value === "manual") {
+    dbStepFwd();
+    return;
+  }
+  const pbtn = document.getElementById("db-pause-btn");
+  if (pbtn) { pbtn.classList.remove("paused"); pbtn.innerHTML = "&#9646;&#9646; Pause"; }
   dbPlaying = true;
   dbSetBtns({ play:false, fwd:true, back:true, pause:true });
   if (dbCurrentStage === 0) {
@@ -2451,6 +2738,13 @@ function dbStepFwd() {
   if (dbCurrentStage >= 10 || dbDramaActive) return;
   clearTimeout(dbTimer);
   dbPlaying = false;
+  // Ensure controls stay in view
+  const ctrl = document.querySelector(".db-controls");
+  if (ctrl) {
+    const top = ctrl.getBoundingClientRect().top + window.scrollY - parseInt(getComputedStyle(document.documentElement).getPropertyValue('--header-h'));
+    if (ctrl.getBoundingClientRect().top < parseInt(getComputedStyle(document.documentElement).getPropertyValue('--header-h')) + 10)
+      window.scrollTo({ top: top, behavior: "smooth" });
+  }
   dbCurrentStage++;
   dbStageHistory.push(dbCurrentStage);
   dbAdvanceStage(dbCurrentStage);
@@ -2479,11 +2773,27 @@ function dbStepBack() {
   dbSetBtns({ play:true, fwd:dbCurrentStage<10, back:dbCurrentStage>0, pause:false });
 }
 
-function dbPause() {
-  clearTimeout(dbTimer);
-  dbPlaying = false;
-  dbSetBtns({ play:true, fwd:dbCurrentStage<10, back:dbCurrentStage>0, pause:false });
+function dbTogglePause() {
+  const btn = document.getElementById("db-pause-btn");
+  if (dbPlaying) {
+    // Currently playing — pause it
+    clearTimeout(dbTimer);
+    dbPlaying = false;
+    btn.classList.add("paused");
+    btn.innerHTML = "&#9654; Resume";
+    dbSetBtns({ play:false, fwd:true, back:dbCurrentStage>0, pause:true });
+    dbSetLabel("Paused at stage "+dbCurrentStage+" &mdash; press Resume or Step forward");
+  } else {
+    // Currently paused — resume auto-play
+    btn.classList.remove("paused");
+    btn.innerHTML = "&#9646;&#9646; Pause";
+    dbPlaying = true;
+    dbSetBtns({ play:false, fwd:true, back:dbCurrentStage>0, pause:true });
+    dbScheduleNext();
+  }
 }
+// Keep dbPause as alias for internal calls
+function dbPause() { if (dbPlaying) dbTogglePause(); }
 
 function dbReset() {
   clearTimeout(dbTimer);
