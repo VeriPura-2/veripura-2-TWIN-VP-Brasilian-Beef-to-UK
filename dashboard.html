@@ -21,7 +21,7 @@
   --header-h:60px;
 }
 html{scroll-behavior:smooth;}
-body{font-family:'Instrument Sans',sans-serif;background:#0a0f16;color:#c8c8b8;min-height:100vh;overflow-x:hidden;}
+body{font-family:'Instrument Sans',sans-serif;background:#0a0f16;color:#c8c8b8;height:100vh;overflow:hidden;}
 .mono{font-family:'DM Mono',monospace;}
 .serif{font-family:'DM Serif Display',serif;}
 
@@ -66,7 +66,11 @@ header{
 .sum-card{
   background:var(--ink);padding:0.85rem 1.25rem;
   display:flex;flex-direction:column;gap:0.15rem;
+  cursor:pointer;transition:background 0.15s;
+  user-select:none;
 }
+.sum-card:hover{background:#131e2a;}
+.sum-card.active{background:#131e2a;outline:1px solid #2a3f52;}
 .sum-label{font-family:'DM Mono',monospace;font-size:0.55rem;color:var(--mid);letter-spacing:0.08em;text-transform:uppercase;}
 .sum-value{font-family:'DM Serif Display',serif;font-size:1.6rem;color:#fff;line-height:1;}
 .sum-sub{font-family:'DM Mono',monospace;font-size:0.58rem;color:var(--mid);}
@@ -75,7 +79,7 @@ header{
 .sum-value.red{color:#e85555;}
 
 /* ── MAIN LAYOUT ── */
-.main-layout{display:grid;grid-template-rows:320px 1fr;height:calc(100vh - var(--header-h) - 72px);}
+.main-layout{display:grid;grid-template-rows:300px 1fr;height:calc(100vh - var(--header-h) - 72px);overflow:hidden;}
 
 /* ── MAP ── */
 #map{width:100%;height:100%;z-index:1;}
@@ -120,6 +124,7 @@ header{
   overflow:hidden;
   display:flex;flex-direction:column;
   background:var(--ink);
+  min-height:0;
 }
 .table-toolbar{
   display:flex;align-items:center;gap:0.75rem;
@@ -150,10 +155,8 @@ header{
 .search-input::placeholder{color:#3a4a5a;}
 
 /* ── SHIPMENT TABLE ── */
-.table-scroll{overflow-y:auto;flex:1;}
-.table-scroll::-webkit-scrollbar{width:5px;}
-.table-scroll::-webkit-scrollbar-track{background:#0a0f16;}
-.table-scroll::-webkit-scrollbar-thumb{background:#2a3a4a;border-radius:3px;}
+.table-scroll{overflow-y:scroll;flex:1;min-height:0;}
+
 
 table.ship-table{width:100%;border-collapse:collapse;}
 table.ship-table thead th{
@@ -273,9 +276,24 @@ td.td-mono{font-family:'DM Mono',monospace;font-size:0.65rem;}
 }
 .dd-tab:hover{color:#c8c8b8;}
 .dd-tab.active{color:#fff;border-bottom-color:var(--gold);}
-.dd-body{overflow-y:auto;flex:1;padding:1.25rem 1.5rem;}
-.dd-body::-webkit-scrollbar{width:4px;}
-.dd-body::-webkit-scrollbar-thumb{background:#2a3a4a;border-radius:2px;}
+.dd-body{overflow-y:scroll;flex:1;padding:1.25rem 1.5rem 1.25rem 1rem;}
+
+/* Also style table scroll more visibly */
+/* ── UNIVERSAL SCROLLBARS ── */
+.table-scroll::-webkit-scrollbar,
+.dd-body::-webkit-scrollbar,
+.settings-panel::-webkit-scrollbar { width:10px; }
+.table-scroll::-webkit-scrollbar:horizontal { height:8px; }
+.table-scroll::-webkit-scrollbar-track,
+.dd-body::-webkit-scrollbar-track,
+.settings-panel::-webkit-scrollbar-track { background:#0a1420; border-left:1px solid #2a3f52; }
+.table-scroll::-webkit-scrollbar-track:horizontal { border-left:none; border-top:1px solid #2a3f52; }
+.table-scroll::-webkit-scrollbar-thumb,
+.dd-body::-webkit-scrollbar-thumb,
+.settings-panel::-webkit-scrollbar-thumb { background:#3a6a9a; border-radius:5px; border:2px solid #0a1420; }
+.table-scroll::-webkit-scrollbar-thumb:hover,
+.dd-body::-webkit-scrollbar-thumb:hover,
+.settings-panel::-webkit-scrollbar-thumb:hover { background:#5a8ab8; }
 
 /* Timeline */
 .timeline{display:flex;flex-direction:column;gap:0;}
@@ -341,6 +359,348 @@ td.td-mono{font-family:'DM Mono',monospace;font-size:0.65rem;}
 tr.flash-amber{animation:flashRow 1.5s ease;}
 @keyframes flashRed{0%{background:rgba(232,85,85,0.25);}100%{background:transparent;}}
 tr.flash-red{animation:flashRed 1.5s ease;}
+
+/* ── Table expand over map ── */
+.table-section {
+  transition: all 0.4s cubic-bezier(0.4,0,0.2,1);
+}
+.table-section.expanded {
+  position: fixed;
+  top: calc(var(--header-h) + 72px);
+  left: 0; right: 0; bottom: 0;
+  z-index: 500;
+  border-top: 1px solid var(--border);
+  box-shadow: 0 -8px 40px rgba(0,0,0,0.6);
+}
+/* Collapse button shown when expanded */
+.table-collapse-btn {
+  display: none;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  color: #c8c8b8;
+  background: var(--surface2);
+  border: 1px solid #3a5a6a;
+  border-radius: 5px;
+  padding: 0.3rem 0.85rem;
+  cursor: pointer;
+  letter-spacing: 0.05em;
+  transition: all 0.15s;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+.table-collapse-btn:hover { background: #1e3040; color: #fff; border-color: #5a8ab8; }
+.table-section.expanded .table-collapse-btn { display: inline-flex; align-items: center; gap: 0.35rem; }
+/* Map dimmed when table expanded */
+.map-wrap {
+  transition: opacity 0.3s;
+}
+.map-wrap.dimmed {
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+/* Back to map button — fixed top centre when expanded */
+#back-to-map {
+  display: none;
+  position: fixed;
+  top: calc(var(--header-h) + 74px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 600;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  color: #c8c8b8;
+  background: rgba(19,30,42,0.9);
+  border: 1px solid #3a5a6a;
+  border-radius: 20px;
+  padding: 0.4rem 1.1rem;
+  cursor: pointer;
+  letter-spacing: 0.05em;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  transition: all 0.2s;
+  animation: fadeUp 0.3s ease;
+}
+#back-to-map:hover { background: rgba(30,48,64,0.95); color: #fff; border-color: #5a8ab8; }
+body.table-expanded #back-to-map { display: block; }
+body.table-expanded .table-section { }
+
+/* ══════════════════════════════════════════
+   LIGHT MODE — body.light-mode
+   Header stays dark (intentional anchor)
+   Map tile filter adjusted for light bg
+══════════════════════════════════════════ */
+
+/* Toggle button */
+#theme-toggle-dash {
+  width:32px;height:32px;border-radius:6px;
+  background:none;border:1px solid #2a3f52;color:#7a8a9a;
+  font-size:0.95rem;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:all 0.2s;flex-shrink:0;
+}
+#theme-toggle-dash:hover{border-color:#5a6a7a;color:#fff;background:#1a2535;}
+
+/* Root variable overrides */
+body.light-mode {
+  --border: #ccd4de;
+  --surface: #f0f4f8;
+  --surface2: #e4eaf2;
+  --mid: #5a6878;
+}
+
+/* Body */
+body.light-mode { background:#f0f4f8; color:#0d1520; font-weight:400; }
+
+/* Summary strip */
+body.light-mode .sum-card { background:#ffffff; }
+body.light-mode .sum-card:hover { background:#f0f4f8; }
+body.light-mode .sum-card.active { background:#ddeaf8; outline:2px solid #4a7aaa; }
+body.light-mode .sum-label { color:#3a4858; font-weight:600; font-size:0.6rem; }
+body.light-mode .sum-value { color:#0d1520; font-weight:700; }
+body.light-mode .sum-sub { color:#4a5868; font-weight:500; }
+body.light-mode .summary-strip { background:#b8c8d8; }
+
+/* Map */
+body.light-mode .leaflet-container { background:#e8eef5 !important; }
+body.light-mode .leaflet-control-zoom a { background:#ffffff!important;color:#1a2535!important;border-color:#ccd4de!important; }
+body.light-mode .leaflet-popup-content-wrapper { background:#ffffff!important;border-color:#ccd4de!important;color:#1a2535!important; }
+body.light-mode .leaflet-popup-tip { background:#ffffff!important; }
+body.light-mode .popup-id { color:#7a5a08;font-weight:700; }
+body.light-mode .popup-name { color:#0d1520;font-weight:700; }
+body.light-mode .popup-link { color:#0f5a8a; }
+body.light-mode .popup-link:hover { color:#1a7ab8; }
+
+/* Table toolbar */
+body.light-mode .table-toolbar { background:#ffffff;border-color:#ccd4de; }
+body.light-mode .toolbar-title { color:#0d1520; font-weight:700; letter-spacing:0.08em; }
+body.light-mode .filter-btn { border-color:#b8c8d8;color:#2a3848;background:#ffffff;font-weight:600; }
+body.light-mode .filter-btn:hover,
+body.light-mode .filter-btn.active { background:#ddeaf8;color:#0d1520;border-color:#4a7aaa;font-weight:700; }
+body.light-mode .filter-btn.green.active { background:rgba(26,107,74,0.1);border-color:#1a6b4a;color:#1a6b4a; }
+body.light-mode .filter-btn.amber.active { background:rgba(154,117,24,0.1);border-color:#9a7518;color:#9a7518; }
+body.light-mode .filter-btn.red.active   { background:rgba(180,40,40,0.1);border-color:#b83030;color:#b83030; }
+body.light-mode .search-input { background:#ffffff;border-color:#b8c8d8;color:#0d1520;font-weight:500; }
+body.light-mode .search-input::placeholder { color:#9ab0c8; }
+body.light-mode .search-input:focus { border-color:#7a9ab8; }
+
+/* Table */
+body.light-mode .table-section { background:#f4f7fb; }
+body.light-mode table.ship-table thead th { background:#e4ecf4;color:#0d1520;border-color:#b8c8d8;font-weight:700; }
+body.light-mode table.ship-table thead th:hover { color:#000; }
+body.light-mode table.ship-table tbody tr { border-color:rgba(180,200,220,0.5); }
+body.light-mode table.ship-table tbody tr:hover { background:#f4f8fc; }
+body.light-mode table.ship-table tbody tr.highlighted { background:rgba(15,90,138,0.08); }
+body.light-mode table.ship-table td { color:#2a3848; font-weight:500; }
+body.light-mode td.td-id { color:#7a5a08; font-weight:600; }
+body.light-mode td.td-name { color:#0d1520; font-weight:700; }
+body.light-mode td.td-mono { color:#2a3848; font-weight:500; }
+
+/* RAG badges */
+body.light-mode .rag-badge.green { background:rgba(26,107,74,0.12);border-color:#1a6b4a;color:#0d5238;font-weight:700; }
+body.light-mode .rag-badge.amber { background:rgba(154,117,24,0.12);border-color:#9a7518;color:#7a5a08;font-weight:700; }
+body.light-mode .rag-badge.red   { background:rgba(180,40,40,0.12); border-color:#b83030; color:#8a1818; font-weight:700; }
+
+/* VP/TWIN indicators */
+body.light-mode .indicator.vp       { background:rgba(26,107,74,0.1);border-color:rgba(26,107,74,0.4);color:#1a6b4a; }
+body.light-mode .indicator.tw       { background:rgba(154,117,24,0.1);border-color:rgba(154,117,24,0.4);color:#9a7518; }
+body.light-mode .indicator.vp.alert { background:rgba(180,40,40,0.1);border-color:rgba(180,40,40,0.4);color:#b83030; }
+
+/* Stage progress pips */
+body.light-mode .stage-pip         { background:#ccd4de; }
+body.light-mode .stage-pip.done    { background:#1a6b4a; }
+body.light-mode .stage-pip.active  { background:#9a7518; }
+body.light-mode .stage-pip.blocked { background:#b83030; }
+
+/* Scrollbars */
+/* ── LIGHT MODE UNIVERSAL SCROLLBARS ── */
+body.light-mode .table-scroll::-webkit-scrollbar-track,
+body.light-mode .dd-body::-webkit-scrollbar-track,
+body.light-mode .settings-panel::-webkit-scrollbar-track { background:#e8f0f8; border-left:1px solid #b8c8d8; }
+body.light-mode .table-scroll::-webkit-scrollbar-thumb,
+body.light-mode .dd-body::-webkit-scrollbar-thumb,
+body.light-mode .settings-panel::-webkit-scrollbar-thumb { background:#5a8ab8; border-radius:5px; border:2px solid #e8f0f8; }
+body.light-mode .table-scroll::-webkit-scrollbar-thumb:hover,
+body.light-mode .dd-body::-webkit-scrollbar-thumb:hover,
+body.light-mode .settings-panel::-webkit-scrollbar-thumb:hover { background:#3a6a9a; }
+
+/* Drilldown panel */
+body.light-mode .drilldown         { background:#ffffff;border-color:#ccd4de; }
+body.light-mode .dd-header         { background:#f4f7fb;border-color:#ccd4de; }
+body.light-mode .dd-close          { border-color:#ccd4de;color:#5a6878; }
+body.light-mode .dd-close:hover    { background:#e8eef5;color:#1a2535; }
+body.light-mode .dd-id             { color:#7a5a08; font-weight:700; }
+body.light-mode .dd-meta-item      { color:#3a4858; font-weight:500; }
+body.light-mode .dd-title          { color:#0d1520; font-weight:700; }
+body.light-mode .dd-meta-item      { color:#5a6878; }
+body.light-mode .dd-meta-val       { color:#0d1520; font-weight:600; }
+body.light-mode .dd-tabs           { background:#f0f4f8;border-color:#ccd4de; }
+body.light-mode .dd-tab            { color:#2a3848; font-weight:600; }
+body.light-mode .dd-tab:hover      { color:#0d1520; }
+body.light-mode .dd-tab.active     { color:#0d1520; border-bottom-color:#7a5a08; font-weight:700; }
+
+/* Drilldown body */
+
+
+/* Timeline */
+body.light-mode .tl-item::before   { background:#ccd4de; }
+body.light-mode .tl-icon.signal    { background:rgba(15,90,138,0.1);border-color:#5a90b8;color:#0f5a8a; }
+body.light-mode .tl-icon.vp        { background:rgba(26,107,74,0.1);border-color:#1a6b4a;color:#1a6b4a; }
+body.light-mode .tl-icon.twin      { background:rgba(154,117,24,0.1);border-color:#9a7518;color:#9a7518; }
+body.light-mode .tl-icon.apha      { background:rgba(180,40,40,0.1);border-color:#b83030;color:#b83030; }
+body.light-mode .tl-icon.alert     { background:rgba(180,40,40,0.15);border-color:#b83030;color:#b83030; }
+body.light-mode .tl-icon.ok        { background:rgba(26,107,74,0.15);border-color:#1a6b4a;color:#1a6b4a; }
+body.light-mode .tl-time           { color:#4a5a6a; font-weight:500; }
+body.light-mode .tl-party.signal   { color:#0a3f68; font-weight:700; }
+body.light-mode .tl-party.vp       { color:#0d5238; font-weight:700; }
+body.light-mode .tl-party.twin     { color:#7a5a08; font-weight:700; }
+body.light-mode .tl-party.apha     { color:#8a1818; font-weight:700; }
+body.light-mode .tl-text           { color:#1a2535; font-weight:500; }
+body.light-mode .tl-doc            { background:#ddeaf4;border-color:#9ab8d8;color:#1a3858;font-weight:600; }
+
+/* Stage detail rows */
+body.light-mode .dd-stages .dd-stage-row          { background:#f8fafc;border-color:#ccd4de; }
+body.light-mode .dd-stage-row.done                { background:rgba(26,107,74,0.06);border-color:rgba(26,107,74,0.3); }
+body.light-mode .dd-stage-row.active              { background:rgba(154,117,24,0.06);border-color:rgba(154,117,24,0.4); }
+body.light-mode .dd-stage-row.blocked             { background:rgba(180,40,40,0.06);border-color:rgba(180,40,40,0.4); }
+body.light-mode .dd-stage-num                     { color:#4a5868; font-weight:600; }
+body.light-mode .dd-stage-label                   { color:#2a3848; font-weight:500; }
+body.light-mode .dd-stage-row.done .dd-stage-label   { color:#0d1520; font-weight:600; }
+body.light-mode .dd-stage-row.active .dd-stage-label { color:#0d1520;font-weight:700; }
+body.light-mode .dd-stage-row.done .dd-stage-status    { color:#0d5238; font-weight:600; }
+body.light-mode .dd-stage-row.active .dd-stage-status  { color:#7a5a08; font-weight:700; }
+body.light-mode .dd-stage-row.blocked .dd-stage-status { color:#8a1818;font-weight:700; }
+body.light-mode .dd-stage-row.pending .dd-stage-status { color:#6a7a88;font-weight:500; }
+
+/* Back to map + collapse buttons */
+body.light-mode #back-to-map {
+  background:rgba(255,255,255,0.92);border-color:#9ab8d8;color:#1a2535;
+}
+body.light-mode #back-to-map:hover { background:#ffffff;border-color:#6a9ac8; }
+body.light-mode .table-collapse-btn { background:#e8f0fa;border-color:#9ab8d8;color:#1a2535; }
+body.light-mode .table-collapse-btn:hover { background:#d8e8f8;border-color:#6a9ac8; }
+
+/* Panel overlay */
+body.light-mode .panel-overlay { background:rgba(180,200,220,0.4); }
+
+/* Header stays dark but boost contrast */
+body.light-mode header { background:rgba(8,14,22,0.97); border-color:#1e3048; }
+body.light-mode .hdr-logo { color:#ffffff; }
+body.light-mode .hdr-sub { color:#b8c8d8; font-weight:600; }
+body.light-mode .hdr-btn { color:#b8c8d8; font-weight:600; }
+body.light-mode .hdr-btn:hover, body.light-mode .hdr-btn.active { color:#ffffff; background:#1a2f48; border-color:#3a5878; }
+body.light-mode .hdr-clock { color:#c8d8e8; font-weight:600; }
+body.light-mode .live-indicator { color:#3dc882; font-weight:600; }
+body.light-mode .hdr-sep { background:#2a3f52; }
+
+/* Light mode map markers — darker, more visible */
+body.light-mode .ship-marker { border:2px solid rgba(0,0,0,0.25); box-shadow:0 2px 6px rgba(0,0,0,0.3); }
+body.light-mode .ship-marker.green { background:#0d8a4a; box-shadow:0 0 10px rgba(13,138,74,0.5), 0 2px 4px rgba(0,0,0,0.3); }
+body.light-mode .ship-marker.amber { background:#c87800; box-shadow:0 0 10px rgba(200,120,0,0.5), 0 2px 4px rgba(0,0,0,0.3); }
+body.light-mode .ship-marker.red   { background:#c01818; box-shadow:0 0 10px rgba(192,24,24,0.6), 0 2px 4px rgba(0,0,0,0.3); }
+body.light-mode .origin-marker { background:#ffffff; border:2px solid #1a3a5a; box-shadow:0 1px 4px rgba(0,0,0,0.3); }
+
+/* Leaflet tooltip in light mode — dark bg, white text */
+body.light-mode .leaflet-tooltip {
+  background:#0d1520 !important;
+  border:1px solid #2a3a4a !important;
+  color:#ffffff !important;
+  font-weight:600 !important;
+  box-shadow:0 2px 8px rgba(0,0,0,0.3) !important;
+}
+body.light-mode .leaflet-tooltip::before {
+  border-top-color:#0d1520 !important;
+}
+
+/* Ship marker tooltip */
+.ship-tip { background:#0d1520 !important; border:1px solid #3a5878 !important; color:#fff !important; font-family:'DM Mono',monospace !important; font-size:0.68rem !important; padding:4px 8px !important; box-shadow:0 4px 12px rgba(0,0,0,0.4) !important; font-weight:500 !important; }
+.ship-tip::before { border-top-color:#0d1520 !important; }
+.ship-tip .tip-id { color:#e8c040; font-weight:700; margin-right:5px; }
+.ship-tip .tip-comm { color:#e8e8d8; }
+
+/* ══ SETTINGS / WALLET PANEL ══ */
+.settings-panel {
+  position:fixed;top:0;right:0;bottom:0;width:540px;
+  background:#0e1620;border-left:1px solid var(--border);
+  z-index:2001;transform:translateX(100%);
+  transition:transform 0.35s cubic-bezier(0.4,0,0.2,1);
+  display:flex;flex-direction:column;overflow-y:scroll;
+}
+.settings-panel.open{transform:translateX(0);}
+
+
+.sw-section{padding:1.25rem 1.5rem;border-bottom:1px solid var(--border);}
+.sw-section-title{font-family:'DM Mono',monospace;font-size:0.62rem;color:var(--gold);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:1rem;font-weight:600;}
+
+/* Wallet card */
+.sw-wallet-card{background:#131e2a;border:1px solid var(--border);border-radius:10px;padding:1.25rem;}
+.sw-wallet-row{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1rem;}
+.sw-wallet-label{font-family:'DM Mono',monospace;font-size:0.58rem;color:var(--mid);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:0.25rem;}
+.sw-wallet-balance{font-family:'DM Serif Display',serif;font-size:2rem;color:#ffffff;line-height:1;}
+.sw-wallet-balance.sw-used{font-size:1.5rem;color:var(--gold);}
+.sw-wallet-sub{font-family:'DM Mono',monospace;font-size:0.6rem;color:var(--mid);margin-top:0.2rem;}
+.sw-usage-bar-wrap{margin-bottom:1rem;}
+.sw-usage-bar{height:6px;background:#1e2a38;border-radius:3px;overflow:hidden;}
+.sw-usage-fill{height:100%;background:linear-gradient(90deg,#1a6b4a,#3dc882);border-radius:3px;}
+.sw-usage-label{font-family:'DM Mono',monospace;font-size:0.58rem;color:var(--mid);}
+.sw-btn-row{display:flex;gap:0.5rem;}
+.sw-btn{font-family:'DM Mono',monospace;font-size:0.65rem;padding:0.4rem 0.9rem;border-radius:5px;border:1px solid var(--border);background:none;color:#c8c8b8;cursor:pointer;transition:all 0.15s;letter-spacing:0.04em;}
+.sw-btn:hover{background:var(--surface2);color:#fff;}
+.sw-btn.primary{background:var(--green);border-color:var(--green);color:#fff;}
+.sw-btn.primary:hover{background:#145a3d;}
+
+/* Agent grid */
+.sw-agent-grid{display:flex;flex-direction:column;gap:0;}
+.sw-agent-row{display:grid;grid-template-columns:110px 1fr 50px;gap:0.5rem;padding:0.45rem 0.6rem;border-radius:4px;align-items:center;font-size:0.75rem;}
+.sw-agent-row:nth-child(even){background:rgba(255,255,255,0.03);}
+.sw-agent-row.header{font-family:'DM Mono',monospace;font-size:0.58rem;color:var(--mid);letter-spacing:0.06em;text-transform:uppercase;padding-bottom:0.5rem;border-bottom:1px solid var(--border);margin-bottom:0.25rem;}
+.sw-agent-row.total{border-top:1px solid var(--border);margin-top:0.25rem;padding-top:0.5rem;font-weight:600;color:#e8e8d8;}
+.sw-agent-name{font-family:'DM Mono',monospace;font-size:0.68rem;color:var(--green);font-weight:600;}
+.sw-agent-fn{color:#7a8a9a;font-size:0.72rem;}
+.sw-agent-cost{font-family:'DM Mono',monospace;font-size:0.72rem;color:var(--gold);font-weight:600;text-align:right;}
+
+/* Transaction list */
+.sw-tx-list{display:flex;flex-direction:column;gap:0.35rem;}
+.sw-tx-row{display:grid;grid-template-columns:1fr auto auto;gap:0.75rem;align-items:center;padding:0.55rem 0.75rem;background:#131e2a;border:1px solid var(--border);border-radius:6px;font-size:0.75rem;}
+.sw-tx-id{font-family:'DM Mono',monospace;font-size:0.62rem;color:var(--gold);}
+.sw-tx-desc{color:#a8a898;}
+.sw-tx-date{font-family:'DM Mono',monospace;font-size:0.6rem;color:var(--mid);}
+.sw-tx-amount{font-family:'DM Mono',monospace;font-size:0.72rem;font-weight:600;}
+.sw-tx-amount.debit{color:#e85555;}
+.sw-tx-amount.credit{color:#3dc882;}
+
+/* Settings rows */
+.sw-settings-list{display:flex;flex-direction:column;gap:0;}
+.sw-setting-row{display:flex;justify-content:space-between;align-items:center;padding:0.6rem 0;border-bottom:1px solid rgba(30,42,56,0.5);font-size:0.78rem;color:#a8a898;}
+.sw-setting-row:last-child{border-bottom:none;}
+.sw-setting-val{font-family:'DM Mono',monospace;font-size:0.65rem;color:#c8c8b8;text-align:right;}
+
+/* Light mode overrides for settings */
+body.light-mode .settings-panel { background:#ffffff;border-color:#ccd4de; }
+body.light-mode .sw-wallet-card { background:#f0f4f8;border-color:#ccd4de; }
+body.light-mode .sw-wallet-balance { color:#0d1520; }
+body.light-mode .sw-wallet-balance.sw-used { color:#7a5a08; }
+body.light-mode .sw-wallet-sub { color:#5a6878; }
+body.light-mode .sw-wallet-label { color:#3a4858;font-weight:600; }
+body.light-mode .sw-usage-bar { background:#dde8f0; }
+body.light-mode .sw-usage-label { color:#4a5868; }
+body.light-mode .sw-btn { border-color:#b8c8d8;color:#1a2535;background:#ffffff; }
+body.light-mode .sw-btn:hover { background:#e8f0fa;color:#0d1520; }
+body.light-mode .sw-section { border-color:#ccd4de; }
+body.light-mode .sw-section-title { color:#7a5a08; }
+body.light-mode .sw-agent-row.header { color:#3a4858;border-color:#ccd4de; }
+body.light-mode .sw-agent-row:nth-child(even) { background:rgba(0,0,0,0.03); }
+body.light-mode .sw-agent-name { color:#0d5238; }
+body.light-mode .sw-agent-fn { color:#3a4858; }
+body.light-mode .sw-agent-cost { color:#7a5a08; }
+body.light-mode .sw-agent-row.total { border-color:#ccd4de;color:#0d1520; }
+body.light-mode .sw-tx-row { background:#f4f8fc;border-color:#ccd4de; }
+body.light-mode .sw-tx-id { color:#7a5a08; }
+body.light-mode .sw-tx-desc { color:#2a3848; }
+body.light-mode .sw-tx-date { color:#5a6878; }
+body.light-mode .sw-setting-row { border-color:rgba(180,200,220,0.5);color:#2a3848; }
+body.light-mode .sw-setting-val { color:#0d1520; }
+
 </style>
 </head>
 <body>
@@ -359,15 +719,17 @@ tr.flash-red{animation:flashRed 1.5s ease;}
   <div class="hdr-right">
     <div class="live-indicator"><div class="live-dot"></div>LIVE</div>
     <div class="hdr-clock mono" id="clock">--:--:--</div>
+    <button id="theme-toggle-dash" onclick="toggleDashTheme()" title="Toggle light/dark">☀</button>
+    <button class="hdr-btn" onclick="openSettings()" title="Account &amp; Wallet" style="width:32px;height:32px;padding:0;display:flex;align-items:center;justify-content:center;font-size:1rem;">⚙</button>
   </div>
 </header>
 
 <!-- ── SUMMARY STRIP ── -->
 <div class="summary-strip">
-  <div class="sum-card"><div class="sum-label">Active Shipments</div><div class="sum-value" id="s-total">0</div><div class="sum-sub">across 7 origins</div></div>
-  <div class="sum-card"><div class="sum-label">On Track</div><div class="sum-value green" id="s-green">0</div><div class="sum-sub">all stages clear</div></div>
-  <div class="sum-card"><div class="sum-label">Attention Required</div><div class="sum-value amber" id="s-amber">0</div><div class="sum-sub">action pending</div></div>
-  <div class="sum-card"><div class="sum-label">Critical / Held</div><div class="sum-value red" id="s-red">0</div><div class="sum-sub">intervention needed</div></div>
+  <div class="sum-card active" data-sum="all" onclick="sumCardClick('all')"><div class="sum-label">Active Shipments</div><div class="sum-value" id="s-total">0</div><div class="sum-sub">across 7 origins</div></div>
+  <div class="sum-card" data-sum="green" onclick="sumCardClick('green')"><div class="sum-label">On Track</div><div class="sum-value green" id="s-green">0</div><div class="sum-sub">all stages clear</div></div>
+  <div class="sum-card" data-sum="amber" onclick="sumCardClick('amber')"><div class="sum-label">Attention Required</div><div class="sum-value amber" id="s-amber">0</div><div class="sum-sub">action pending</div></div>
+  <div class="sum-card" data-sum="red" onclick="sumCardClick('red')"><div class="sum-label">Critical / Held</div><div class="sum-value red" id="s-red">0</div><div class="sum-sub">intervention needed</div></div>
   <div class="sum-card"><div class="sum-label">VeriPura Actions</div><div class="sum-value" id="s-vp" style="color:var(--gold)">0</div><div class="sum-sub">last 24 hours</div></div>
   <div class="sum-card"><div class="sum-label">TWIN Events</div><div class="sum-value" id="s-tw" style="color:var(--gold)">0</div><div class="sum-sub">notarised today</div></div>
 </div>
@@ -377,20 +739,24 @@ tr.flash-red{animation:flashRed 1.5s ease;}
   <div class="map-wrap"><div id="map"></div></div>
   <div class="table-section">
     <div class="table-toolbar">
-      <span class="toolbar-title mono">Shipments</span>
+      <span class="toolbar-title mono" style="cursor:pointer;" onclick="expandTable()" title="Click to expand">Shipments ↑</span>
       <button class="filter-btn active" data-filter="all">All</button>
       <button class="filter-btn green" data-filter="green">● On Track</button>
       <button class="filter-btn amber" data-filter="amber">● Attention</button>
       <button class="filter-btn red" data-filter="red">● Critical</button>
       <span style="width:1px;height:16px;background:var(--border);margin:0 0.25rem;"></span>
-      <button class="filter-btn" data-filter="brazil">Brazil</button>
-      <button class="filter-btn" data-filter="india">India</button>
-      <button class="filter-btn" data-filter="indonesia">Indonesia</button>
-      <button class="filter-btn" data-filter="thailand">Thailand</button>
-      <button class="filter-btn" data-filter="argentina">Argentina</button>
-      <button class="filter-btn" data-filter="southafrica">S. Africa</button>
-      <button class="filter-btn" data-filter="morocco">Morocco</button>
+      <select id="origin-select" class="search-input" style="width:130px;cursor:pointer;" onchange="originSelectChange(this.value)">
+        <option value="">All origins</option>
+        <option value="brazil">🇧🇷 Brazil</option>
+        <option value="india">🇮🇳 India</option>
+        <option value="indonesia">🇮🇩 Indonesia</option>
+        <option value="thailand">🇹🇭 Thailand</option>
+        <option value="argentina">🇦🇷 Argentina</option>
+        <option value="southafrica">🇿🇦 South Africa</option>
+        <option value="morocco">🇲🇦 Morocco</option>
+      </select>
       <input class="search-input" id="search-input" placeholder="Search ID, commodity…" oninput="applyFilters()">
+      <button class="table-collapse-btn" onclick="collapseTable()">↓ Collapse</button>
     </div>
     <div class="table-scroll">
       <table class="ship-table">
@@ -411,6 +777,88 @@ tr.flash-red{animation:flashRed 1.5s ease;}
     </div>
   </div>
 </div>
+
+
+<!-- ══ SETTINGS / WALLET PANEL ══ -->
+<div class="panel-overlay" id="settings-overlay" onclick="closeSettings()"></div>
+<div class="settings-panel" id="settings-panel">
+  <div class="dd-header">
+    <button class="dd-close" onclick="closeSettings()">✕</button>
+    <div class="dd-id">ACCOUNT</div>
+    <div class="dd-title">Signal Logistics Pvt Ltd</div>
+    <div style="font-family:'DM Mono',monospace;font-size:0.65rem;color:var(--mid);margin-top:0.3rem;">ops@signallogistics.com · Tier: Professional</div>
+  </div>
+
+  <!-- VERI Token wallet -->
+  <div class="sw-section">
+    <div class="sw-section-title">VERI Token Wallet</div>
+    <div class="sw-wallet-card">
+      <div class="sw-wallet-row">
+        <div>
+          <div class="sw-wallet-label">Available Balance</div>
+          <div class="sw-wallet-balance" id="sw-balance">12,480</div>
+          <div class="sw-wallet-sub">VERI tokens</div>
+        </div>
+        <div style="text-align:right;">
+          <div class="sw-wallet-label">Monthly Usage</div>
+          <div class="sw-wallet-balance sw-used" id="sw-used">3,520</div>
+          <div class="sw-wallet-sub">this billing period</div>
+        </div>
+      </div>
+      <div class="sw-usage-bar-wrap">
+        <div class="sw-usage-bar"><div class="sw-usage-fill" style="width:22%"></div></div>
+        <div style="display:flex;justify-content:space-between;margin-top:4px;">
+          <span class="sw-usage-label">22% of 16,000 token monthly allowance used</span>
+          <span class="sw-usage-label" style="color:var(--green)">Renews 01 Apr 2026</span>
+        </div>
+      </div>
+      <div class="sw-btn-row">
+        <button class="sw-btn primary">+ Top up tokens</button>
+        <button class="sw-btn">View token history</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Agent pricing reference -->
+  <div class="sw-section">
+    <div class="sw-section-title">VeriPura Guardian Agent Costs</div>
+    <div class="sw-agent-grid">
+      <div class="sw-agent-row header">
+        <span>Agent</span><span>Function</span><span style="text-align:right;">Tokens</span>
+      </div>
+      <div class="sw-agent-row"><span class="sw-agent-name">Intake</span><span class="sw-agent-fn">Document ingestion & classification</span><span class="sw-agent-cost">20</span></div>
+      <div class="sw-agent-row"><span class="sw-agent-name">Mapping</span><span class="sw-agent-fn">Regulatory requirement matching</span><span class="sw-agent-cost">40</span></div>
+      <div class="sw-agent-row"><span class="sw-agent-name">Parse</span><span class="sw-agent-fn">Field-level data extraction</span><span class="sw-agent-cost">30</span></div>
+      <div class="sw-agent-row"><span class="sw-agent-name">Trace</span><span class="sw-agent-fn">Supply chain actor verification</span><span class="sw-agent-cost">50</span></div>
+      <div class="sw-agent-row"><span class="sw-agent-name">Comply</span><span class="sw-agent-fn">Regulatory cross-referencing</span><span class="sw-agent-cost">60</span></div>
+      <div class="sw-agent-row"><span class="sw-agent-name">Shield</span><span class="sw-agent-fn">Fraud & forgery detection</span><span class="sw-agent-cost">80</span></div>
+      <div class="sw-agent-row"><span class="sw-agent-name">Auditor</span><span class="sw-agent-fn">Discrepancy flagging</span><span class="sw-agent-cost">40</span></div>
+      <div class="sw-agent-row"><span class="sw-agent-name">Verdict</span><span class="sw-agent-fn">Go/no-go compliance decision</span><span class="sw-agent-cost">30</span></div>
+      <div class="sw-agent-row"><span class="sw-agent-name">Ledger</span><span class="sw-agent-fn">TWIN/IOTA notarisation</span><span class="sw-agent-cost">20</span></div>
+      <div class="sw-agent-row total"><span>Full 9-agent run</span><span class="sw-agent-fn">Complete compliance validation</span><span class="sw-agent-cost">370</span></div>
+    </div>
+  </div>
+
+  <!-- Transaction history -->
+  <div class="sw-section">
+    <div class="sw-section-title">Recent Transactions</div>
+    <div class="sw-tx-list" id="sw-tx-list"></div>
+  </div>
+
+  <!-- Account settings -->
+  <div class="sw-section">
+    <div class="sw-section-title">Account Settings</div>
+    <div class="sw-settings-list">
+      <div class="sw-setting-row"><span>Notifications</span><span class="sw-setting-val">Critical & Amber alerts → email</span></div>
+      <div class="sw-setting-row"><span>Auto top-up</span><span class="sw-setting-val">Enabled at &lt;2,000 tokens</span></div>
+      <div class="sw-setting-row"><span>API access</span><span class="sw-setting-val">Enabled · <span style="color:var(--green)">Active</span></span></div>
+      <div class="sw-setting-row"><span>TWIN wallet address</span><span class="sw-setting-val mono" style="font-size:0.6rem;">iota1qp8x4z…f9a3c7</span></div>
+      <div class="sw-setting-row"><span>Subscription tier</span><span class="sw-setting-val">Professional · £1,200/mo</span></div>
+    </div>
+  </div>
+</div>
+
+<button id="back-to-map" onclick="collapseTable()">↑ Map view</button>
 
 <!-- ── DRILLDOWN PANEL ── -->
 <div class="panel-overlay" id="panel-overlay" onclick="closePanel()"></div>
@@ -582,10 +1030,16 @@ const map = L.map('map', {
   scrollWheelZoom:true,
 });
 
-L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{
+const darkTiles = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{
   attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/">CARTO</a>',
   subdomains:'abcd', maxZoom:19,
-}).addTo(map);
+});
+const lightTiles = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',{
+  attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/">CARTO</a>',
+  subdomains:'abcd', maxZoom:19,
+});
+// Start with whichever theme is active
+if(localStorage.getItem('vp-dash-theme')==='light') { lightTiles.addTo(map); } else { darkTiles.addTo(map); }
 
 // UK destination marker
 const ukIcon = L.divIcon({ className:'', html:'<div style="width:12px;height:12px;border-radius:50%;background:#fff;border:2px solid #c49a2a;box-shadow:0 0 10px rgba(196,154,42,0.8);"></div>', iconSize:[12,12], iconAnchor:[6,6] });
@@ -607,17 +1061,26 @@ SHIPS.forEach(ship => {
     iconSize:[14,14], iconAnchor:[7,7]
   });
   const marker = L.marker([ship.lat, ship.lng], {icon}).addTo(map);
+  const ragCol = ship.rag==='green'?'#3dc882':ship.rag==='amber'?'#e8c040':'#e85555';
+  const ragLbl = ship.rag==='green'?'On Track':ship.rag==='amber'?'Attention':'Critical';
   marker.bindPopup(`
     <div class="popup-id">${ship.id}</div>
     <div class="popup-name">${ship.commodity}</div>
-    <div style="color:var(--mid);font-size:0.65rem;margin-top:2px;">${ORIGINS[ship.origin].label} → UK · Stage ${ship.stage}/10</div>
-    <span class="popup-link" onclick="openPanel('${ship.id}');this.closest('.leaflet-popup').querySelector('.leaflet-popup-close-button').click()">View audit trail →</span>
-  `);
+    <div style="color:var(--mid);font-size:0.65rem;margin-top:3px;">${ORIGINS[ship.origin].label} — ${ORIGINS[ship.origin].port}</div>
+    <div style="margin-top:4px;display:flex;align-items:center;gap:6px;">
+      <span style="font-family:DM Mono,monospace;font-size:0.6rem;color:${ragCol};">● ${ragLbl}</span>
+      <span style="font-family:DM Mono,monospace;font-size:0.6rem;color:var(--mid);">Stage ${ship.stage}/10 · ${ship.vessel}</span>
+    </div>
+    <div style="margin-top:4px;font-family:DM Mono,monospace;font-size:0.6rem;color:var(--mid);">ETA ${ship.etaStr} · ${ship.weight}</div>
+    <span class="popup-link" onclick="openPanel('${ship.id}');map.closePopup();">↗ View full audit trail</span>
+  `,{maxWidth:240});
   // Route line (faint)
   const org  = ORIGINS[ship.origin];
   const dest = org.dest;
   const lineColor = ship.rag==='green'?'rgba(61,200,130,0.25)':ship.rag==='amber'?'rgba(232,192,64,0.25)':'rgba(232,85,85,0.3)';
-  L.polyline([[ship.lat,ship.lng],[dest[0],dest[1]]], {color:lineColor,weight:1,dashArray:'4 6'}).addTo(map);
+  const pl = L.polyline([[ship.lat,ship.lng],[dest[0],dest[1]]], {color:lineColor,weight:1.5,dashArray:'5 7',opacity:0.7}).addTo(map);
+  ship._polyline = pl;
+  marker.bindTooltip(`<span class="tip-id">${ship.id}</span> <span class="tip-comm">${ship.commodity}</span>`,{direction:'top',offset:[0,-8],className:'ship-tip'});
   shipMarkers[ship.id] = marker;
 });
 
@@ -672,6 +1135,35 @@ function renderTable() {
 }
 
 function applyFilters() { renderTable(); }
+
+function sumCardClick(filter) {
+  document.querySelectorAll('.sum-card[data-sum]').forEach(c => c.classList.remove('active'));
+  document.querySelector(`.sum-card[data-sum="${filter}"]`)?.classList.add('active');
+  const sel = document.getElementById('origin-select');
+  if (sel) sel.value = '';
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active','green','amber','red'));
+  const matchBtn = document.querySelector(`.filter-btn[data-filter="${filter}"]`);
+  if (matchBtn) { matchBtn.classList.add('active'); if(['green','amber','red'].includes(filter)) matchBtn.classList.add(filter); }
+  else { document.querySelector('.filter-btn[data-filter="all"]')?.classList.add('active'); }
+  activeFilter = filter;
+  if (filter === 'all') {
+    collapseTable();  // "All / Active Shipments" returns to map view
+  } else {
+    expandTable();
+  }
+  renderTable();
+}
+
+function originSelectChange(val) {
+  // Clear RAG filters, clear sum card active
+  document.querySelectorAll('.sum-card[data-sum]').forEach(c => c.classList.remove('active'));
+  document.querySelector('.sum-card[data-sum="all"]')?.classList.add('active');
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active','green','amber','red'));
+  document.querySelector('.filter-btn[data-filter="all"]')?.classList.add('active');
+  activeFilter = val || 'all';
+  if (val) expandTable();
+  renderTable();
+}
 
 function sortTable(key) {
   if (sortKey===key) sortDir*=-1; else { sortKey=key; sortDir=1; }
@@ -874,8 +1366,111 @@ updateClock();
 setInterval(updateClock, 1000);
 setInterval(runSimulation, 8000);
 
-// Escape key closes panel
-document.addEventListener('keydown', e => { if (e.key==='Escape') closePanel(); });
+
+// ── Table expand/collapse ──────────────────────────
+function expandTable() {
+  document.querySelector('.table-section').classList.add('expanded');
+  document.querySelector('.map-wrap').classList.add('dimmed');
+  document.body.classList.add('table-expanded');
+}
+
+function collapseTable() {
+  document.querySelector('.table-section').classList.remove('expanded');
+  document.querySelector('.map-wrap').classList.remove('dimmed');
+  document.body.classList.remove('table-expanded');
+}
+
+// Auto-expand when a row is clicked
+const _origOpenPanel = openPanel;
+openPanel = function(id) {
+  expandTable();
+  _origOpenPanel(id);
+};
+
+// Collapse on Escape (before panel close)
+const _origKeydown = document.onkeydown;
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    if (document.getElementById('drilldown').classList.contains('open')) {
+      closePanel();
+    } else {
+      collapseTable();
+    }
+  }
+});
+
+
+// ── Theme toggle ──────────────────────────────────────
+(function(){
+  if(localStorage.getItem('vp-dash-theme')==='light'){
+    document.body.classList.add('light-mode');
+    const btn=document.getElementById('theme-toggle-dash');
+    if(btn) btn.textContent='☾';
+  }
+})();
+
+function toggleDashTheme(){
+  const isLight = document.body.classList.toggle('light-mode');
+  const btn = document.getElementById('theme-toggle-dash');
+  if(btn) btn.textContent = isLight ? '☾' : '☀';
+  localStorage.setItem('vp-dash-theme', isLight ? 'light' : 'dark');
+  // Swap tile layers
+  if(isLight) { map.removeLayer(darkTiles); lightTiles.addTo(map); }
+  else         { map.removeLayer(lightTiles); darkTiles.addTo(map); }
+  // Update polyline colors for visibility
+  SHIPS.forEach(ship => {
+    if (!ship._polyline) return;
+    const lc = isLight
+      ? (ship.rag==='green'?'rgba(13,138,74,0.55)':ship.rag==='amber'?'rgba(200,120,0,0.55)':'rgba(192,24,24,0.65)')
+      : (ship.rag==='green'?'rgba(61,200,130,0.25)':ship.rag==='amber'?'rgba(232,192,64,0.25)':'rgba(232,85,85,0.3)');
+    ship._polyline.setStyle({color:lc, weight: isLight ? 2 : 1.5});
+  });
+}
+
+
+// ── Settings / Wallet panel ──────────────────────────
+function openSettings() {
+  // Generate transaction history
+  const txList = document.getElementById('sw-tx-list');
+  const agents = ['Intake+Parse','Full 9-agent','Comply+Shield','Intake+Mapping','Ledger only'];
+  const descs  = ['Pre-order assessment','Full compliance validation','EHC & OV verification','Commercial doc check','TWIN notarisation'];
+  const costs  = [50, 370, 140, 60, 20];
+  const txs = SHIPS.slice(0,12).map((s,i) => ({
+    id: s.id,
+    agents: agents[i%agents.length],
+    desc: descs[i%descs.length],
+    cost: costs[i%costs.length] * (s.stage > 5 ? 3 : s.stage),
+    date: new Date(Date.now() - i*3*86400000).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'2-digit'}),
+    type: i===2?'credit':'debit'
+  }));
+  txList.innerHTML = txs.map(tx => `
+    <div class="sw-tx-row">
+      <div>
+        <div class="sw-tx-id">${tx.id}</div>
+        <div class="sw-tx-desc">${tx.agents} — ${tx.desc}</div>
+      </div>
+      <div class="sw-tx-date">${tx.date}</div>
+      <div class="sw-tx-amount ${tx.type}">${tx.type==='credit'?'+':'-'}${tx.cost} VERI</div>
+    </div>`).join('');
+
+  document.getElementById('settings-overlay').classList.add('open');
+  document.getElementById('settings-panel').classList.add('open');
+}
+
+function closeSettings() {
+  document.getElementById('settings-overlay').classList.remove('open');
+  document.getElementById('settings-panel').classList.remove('open');
+}
+
+// Update Escape to also close settings
+document.addEventListener('keydown', e => {
+  if (e.key==='Escape') {
+    if (document.getElementById('settings-panel').classList.contains('open')) closeSettings();
+    else if (document.getElementById('drilldown').classList.contains('open')) closePanel();
+    else collapseTable();
+  }
+});
+
 </script>
 </body>
 </html>
