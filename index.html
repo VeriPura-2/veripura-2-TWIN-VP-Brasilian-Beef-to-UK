@@ -357,38 +357,7 @@ const CONFIG = {
       veripura: { intensity:"mid",  tasks:["Close compliance record on goods receipt","Compare final temperature vs cold chain spec","Issue end-to-end compliance certificate"], docs:["Compliance Certificate","Temp Comparison"] },
       twin:     { intensity:"high", tasks:["Notarise delivery confirmation — chain complete","Permanent record: farm to warehouse, single QR","Available for retailer audits & APHA queries indefinitely"], docs:["Delivery Credential","Full Audit Chain"] }
     }
-  ],
-
-  technology: {
-    veripura: {
-      name: "VeriPura",
-      tagline: "AI-powered compliance automation",
-      description: "A multi-agent AI workflow that ingests, validates and cross-references import documentation against live regulatory databases — DEFRA, APHA, HMRC Trade Tariff, IPAFFS — in real time. No manual checking. No missed updates. No border surprises.",
-      agents: [
-        "Intake Agent — document ingestion & classification",
-        "Mapping Agent — regulatory requirement matching",
-        "Parse Agent — field-level data extraction & validation",
-        "Trace Agent — supply chain actor verification",
-        "Comply Agent — regulatory cross-referencing",
-        "Shield Agent — fraud & forgery detection",
-        "Auditor Agent — discrepancy flagging",
-        "Verdict Agent — go/no-go compliance decision",
-        "Ledger Agent — TWIN/IOTA notarisation"
-      ]
-    },
-    twin: {
-      name: "TWIN (IOTA Foundation)",
-      tagline: "Immutable notarisation on IOTA",
-      description: "Trade & Workforce Innovation Network — powered by the IOTA distributed ledger. Every compliance event, document hash and verification result is anchored on IOTA, creating a tamper-proof, feeless audit chain from Brazilian farm to UK border. Verifiable credentials allow instant authentication without contacting source authorities.",
-      features: [
-        
-        "Verifiable Credentials — W3C standard, QR-scannable",
-        "Decentralised Identifiers (DIDs) for all parties",
-        "IOTA Rebased — scalable, energy-efficient",
-        "Gas Station — sponsored transactions for importers"
-      ]
-    }
-  }
+  ]
 };
 </script>
 <style>
@@ -1974,7 +1943,6 @@ body.demo-mode .db-stats-bar { display: none; }
     <button class="nav-btn" onclick="document.getElementById('process').scrollIntoView({behavior:'smooth'})">Process</button>
     <button class="nav-btn" onclick="document.getElementById('swimlane').scrollIntoView({behavior:'smooth'})">Swimlanes</button>
     <button class="nav-btn" onclick="document.getElementById('dashboard').scrollIntoView({behavior:'smooth'})">Demo</button>
-    <button class="nav-btn" onclick="document.getElementById('technology').scrollIntoView({behavior:'smooth'})">Technology</button>
     <a class="nav-btn" href="dashboard.html" style="text-decoration:none">Operations ↗</a>
   </nav>
 </header>
@@ -2155,14 +2123,7 @@ body.demo-mode .db-stats-bar { display: none; }
   </div>
 </div>
 
-<!-- ── TECHNOLOGY SECTION ── -->
-<div class="tech-section" id="technology">
-  <div class="tech-inner">
-    <div class="tech-eyebrow">Powered by</div>
-    <h2>The Technology Stack</h2>
-    <div class="tech-grid" id="tech-grid"></div>
-  </div>
-</div>
+
 
 <!-- ── FOOTER ── -->
 <footer style="background:var(--ink);border-top:1px solid #2a2f38;padding:2rem 2.5rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1.5rem;">
@@ -2525,27 +2486,6 @@ function highlightColumn(idx) {
   openPanel(idx);
 }
 
-// ── TECHNOLOGY ────────────────────────────────────────────────
-const techGrid = document.getElementById('tech-grid');
-const tech = CONFIG.technology;
-
-[tech.veripura, tech.twin].forEach(t => {
-  const featureKey = t === tech.veripura ? 'agents' : 'features';
-  const items = t[featureKey] || [];
-  techGrid.innerHTML += `
-    <div class="tech-card">
-      <div class="tech-card-name">${t.name}</div>
-      <div class="tech-card-tag">${t.tagline}</div>
-      <div class="tech-card-desc">${t.description}</div>
-      <div class="tech-features">
-        ${items.map(f => `
-          <div class="tech-feature">
-            <span class="tf-bullet">▸</span>
-            <span>${f}</span>
-          </div>`).join('')}
-      </div>
-    </div>`;
-});
 
 
 // ── Per-stage narrative, elapsed time, time saved ────
