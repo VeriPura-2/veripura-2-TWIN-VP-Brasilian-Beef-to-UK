@@ -52,7 +52,7 @@ const CONFIG = {
         "Creates immutable audit trail of pre-order compliance status"
       ],
       before: "Importer manually checks DEFRA spreadsheets, emails APHA for confirmation, and relies on memory for RASFF alerts. Process takes 2–5 days and is frequently incomplete.",
-      after: "VeriPura runs all checks in under 60 seconds against live databases. A go/no-go verdict is issued before the purchase order is placed. TWIN notarises the result.",
+      after: "VeriPura runs all checks in under 60 seconds against live databases. A go/no-go verdict is issued before the purchase order is placed. Result notarised.",
       timesBefore: "2–5 days", timesAfter: "< 60 seconds"
     },
     {
@@ -153,7 +153,7 @@ const CONFIG = {
         "Any cold chain break detected in transit is recorded immutably"
       ],
       before: "Loading records are paper-based. Temperature logs are PDFs from cold stores. Seal numbers recorded manually. Discrepancies between loading records and border arrival are common.",
-      after: "Loading data flows into VeriPura automatically. TWIN notarises seal numbers and temperature ranges. Any discrepancy between dispatch and arrival is immediately flagged.",
+      after: "Loading data flows into VeriPura automatically.  Seal numbers and temperature ranges notarised. Any discrepancy between dispatch and arrival is immediately flagged.",
       timesBefore: "Manual, error-prone", timesAfter: "Automated, tamper-evident"
     },
     {
@@ -215,7 +215,7 @@ const CONFIG = {
       ],
       veripura: [
         "Supplies APHA inspector with pre-validated document summary — all checks already run",
-        "QR code on consignment links to full VeriPura compliance record and TWIN-notarised credentials",
+        "QR code on consignment links to full VeriPura compliance record and notarised credentials",
         "Flags any open issues or discrepancies before inspector begins physical check",
         "CHED-P completion supported with pre-populated data from consignment record"
       ],
@@ -250,7 +250,7 @@ const CONFIG = {
         "Immutable record from Brazilian establishment to UK release — available for audit at any point"
       ],
       before: "Customs broker compiles duty calculations manually. Tariff classification errors are common and result in under/over-payment and potential penalties. Clearance takes 24–48 hours.",
-      after: "VeriPura pre-validates tariff classification and duty calculations. Customs broker submits with confidence. TWIN notarises the release event, completing the full audit chain.",
+      after: "VeriPura pre-validates tariff classification and duty calculations. Customs broker submits with confidence. The release event notarised, completing the full audit chain.",
       timesBefore: "24–48 hours", timesAfter: "2–4 hours"
     },
     {
@@ -275,7 +275,7 @@ const CONFIG = {
         "Compliance record permanently accessible for retailer audits, regulatory queries, or dispute resolution"
       ],
       before: "Delivery is the end of the process — no connection back to the compliance documentation. If a retailer or regulator queries provenance months later, manual records must be assembled from multiple parties.",
-      after: "A single TWIN-notarised chain connects the Brazilian herd to the UK warehouse. Any downstream query — retailer audit, APHA investigation, consumer recall — is resolved with one scan.",
+      after: "A single IOTA-notarised chain connects the Brazilian herd to the UK warehouse. Any downstream query — retailer audit, APHA investigation, consumer recall — is resolved with one scan.",
       timesBefore: "Days to weeks to reconstruct audit trail", timesAfter: "Instant — single QR code"
     }
   ],
@@ -2322,7 +2322,7 @@ function openPanel(idx) {
   // TWIN
   const twinDiv = document.createElement('div');
   twinDiv.className = 'panel-section';
-  twinDiv.innerHTML = `<div class="panel-section-title">TWIN Notarises</div>
+  twinDiv.innerHTML = `<div class="panel-section-title">Notarised</div>
     <div class="twin-block">
       <div class="twin-header">
         <div class="twin-dot"></div>
@@ -2517,9 +2517,9 @@ const DB_STAGE_DATA = [
     elapsedSub: "Health certification"
   },
   { // S5
-    narrative: "Signal books the approved haulier and oversees loading at the cold store. TWIN notarises the seal number, vehicle ID and temperature range at the point of loading.",
+    narrative: "Signal books the approved haulier and oversees loading at the cold store. Notarised: the seal number, vehicle ID and temperature range at the point of loading.",
     elapsed: "Day 8",
-    elapsedSub: "Loading & dispatch"
+    elapsedSub: "Loading & dispatch"N
   },
   { // S6
     narrative: "Signal files the export declaration at the port of exit. VeriPura pre-validates HS codes and declared values against the full document set — errors caught before the vessel departs.",
@@ -2839,7 +2839,7 @@ function dbAct1() {
     dbRenderMatrix();
     dbShowResolve(
       "&#10003; Resolved by VeriPura — 31 hours before scheduled loading",
-      "Exporter contacted. Corrected EHC issued by MAPA Official Vet on current GB template. OV credentials re-verified. TWIN notarised the updated EHC as a W3C Verifiable Credential on the IOTA ledger. "
+      "Exporter contacted. Corrected EHC issued by MAPA Official Vet on current GB template. OV credentials re-verified. Notarised the updated EHC as a W3C Verifiable Credential on the IOTA ledger. "
       +"<strong style=\"color:#3dc882\">No border hold. No cold-chain risk. No delay to vessel departure.</strong> "
       +"This is the primary value of pre-shipment compliance validation."
     );
@@ -2877,7 +2877,7 @@ function dbAct2() {
     dbRenderMatrix();
     dbShowResolve(
       "&#10003; Hold Lifted — TWIN Cold-Chain Credential Verified",
-      "Signal presented the TWIN-notarised Reefer Temperature Log to the Port Health Authority inspector. "
+      "Signal presented the notarised Reefer Temperature Log to the Port Health Authority inspector. "
       +"The log — anchored on the IOTA ledger at the point of loading and updated at each transit checkpoint — shows the reading was a 4-minute sensor spike during container handling at the port of discharge, not a sustained exceedance. "
       +"Core product temperature remained within specification throughout. "
       +"<strong style=\"color:#3dc882\">Hold lifted in 47 minutes. No sampling required. No product destroyed. Vessel departed on schedule.</strong> "
